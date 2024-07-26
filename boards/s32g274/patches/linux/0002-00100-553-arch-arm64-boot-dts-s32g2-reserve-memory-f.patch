@@ -1,0 +1,33 @@
+From 31fb49ca9f79ab3cb35ae37bcef036b1bc928e56 Mon Sep 17 00:00:00 2001
+From: Filippo Fontana <filippo.fontana@minervasys.tech>
+Date: Fri, 10 May 2024 12:19:52 +0200
+Subject: [PATCH] 00100#553: [arch, arm64, boot, dts, s32g2] reserve memory for
+ jailhouse
+
+As of now, a whole GiB is reserved for Jailhouse, this will change in
+the future once the stable version of Jailhouse for the s32g2 with cache
+coloring and memguard working correctly.
+
+Signed-off-by: Filippo Fontana <filippo.fontana@minervasys.tech>
+---
+ arch/arm64/boot/dts/freescale/s32g2.dtsi | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/freescale/s32g2.dtsi b/arch/arm64/boot/dts/freescale/s32g2.dtsi
+index 6b31661ac072..c8d64ced7409 100644
+--- a/arch/arm64/boot/dts/freescale/s32g2.dtsi
++++ b/arch/arm64/boot/dts/freescale/s32g2.dtsi
+@@ -16,6 +16,10 @@ ddr_errata_reserved: ddr@85000000 {
+ 			reg = <0x0 0x85000000 0x0 0x1000>; /* 4 KB */
+ 			no-map;
+ 		};
++		jailhouse@0x880000000 {
++			reg = <0x8 0x80000000 0x00 0x40000000>;
++			no-map;
++		};
+ 	};
+ };
+ 
+-- 
+2.45.2
+

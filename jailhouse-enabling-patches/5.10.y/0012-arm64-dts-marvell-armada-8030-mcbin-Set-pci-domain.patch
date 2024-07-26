@@ -1,0 +1,31 @@
+From 19e0697bd32cda2b71082f1a9720d30ac31fd9fa Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Sun, 30 Sep 2018 21:22:32 +0200
+Subject: [PATCH 12/13] arm64: dts: marvell: armada-8030-mcbin: Set pci-domain
+
+This is a nop for normal operation but allows the device tree overlay
+that the Jailhouse hypervisor injects to use pci-domain as well
+(linux,pci-domain has to be applied consistently in a system). That will
+assign a stable PCI domain to the secondary, virtual host controller of
+Jailhouse.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ arch/arm64/boot/dts/marvell/armada-8040-mcbin.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/boot/dts/marvell/armada-8040-mcbin.dtsi b/arch/arm64/boot/dts/marvell/armada-8040-mcbin.dtsi
+index cbcb210cb6d8..5e3aef478d93 100644
+--- a/arch/arm64/boot/dts/marvell/armada-8040-mcbin.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-8040-mcbin.dtsi
+@@ -177,6 +177,7 @@ ge_phy: ethernet-phy@0 {
+ };
+ 
+ &cp0_pcie0 {
++	linux,pci-domain = <0>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&cp0_pcie_pins>;
+ 	num-lanes = <4>;
+-- 
+2.45.2
+

@@ -1,0 +1,33 @@
+From 0bced0b120de01668a494122ed8ff20fa7822258 Mon Sep 17 00:00:00 2001
+From: Filippo Fontana <filippo.fontana@minervasys.tech>
+Date: Fri, 14 Jun 2024 18:30:47 +0200
+Subject: [PATCH] 10101#595: [arch, arm64, boot, dts, imx8mq] reserve memory
+ for jailhouse
+
+This is not required for real since the reserved memory for jailhouse is
+outside the memory assigned to Linux through the device tree. But it has
+been added for better clarity.
+
+Signed-off-by: Filippo Fontana <filippo.fontana@minervasys.tech>
+---
+ arch/arm64/boot/dts/freescale/fsl-imx8mq-som.dtsi | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/freescale/fsl-imx8mq-som.dtsi b/arch/arm64/boot/dts/freescale/fsl-imx8mq-som.dtsi
+index 2e4b3b34974b..5e43c84c938e 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-imx8mq-som.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-imx8mq-som.dtsi
+@@ -40,6 +40,10 @@
+ 			no-map;
+ 			reg = <0 0xb8000000 0 0x100000>;
+ 		};
++		jailhouse@0xffaf0000  {
++			no-map;
++			reg = <0x0 0xffaf0000 0x0 0x510000>;
++		};
+ 	};
+ 
+ 	chosen {
+-- 
+2.45.2
+

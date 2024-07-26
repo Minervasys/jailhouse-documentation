@@ -1,0 +1,30 @@
+From 52c78891d7643b3d8e65f4ddc7f0f45ea0e8fd67 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Sat, 2 Oct 2021 11:24:16 +0200
+Subject: [PATCH 2/6] Revert "mm: don't allow executable ioremap mappings"
+
+This reverts commit 8491502f787c4a902bd4f223b578ef47d3490264.
+
+Jailhouse needs executable ioremapped RAM to start the hypervisor.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ mm/vmalloc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index fbf92f2eed71..6281c4fcce09 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -316,7 +316,7 @@ int ioremap_page_range(unsigned long addr, unsigned long end,
+ {
+ 	int err;
+ 
+-	err = vmap_range_noflush(addr, end, phys_addr, pgprot_nx(prot),
++	err = vmap_range_noflush(addr, end, phys_addr, prot,
+ 				 ioremap_max_page_shift);
+ 	flush_cache_vmap(addr, end);
+ 	return err;
+-- 
+2.45.2
+

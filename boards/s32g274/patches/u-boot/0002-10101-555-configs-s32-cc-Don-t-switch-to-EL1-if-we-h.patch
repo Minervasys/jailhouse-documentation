@@ -1,0 +1,31 @@
+From a2370e6cde0f6c0ce7be19d1e7a5c074c985b347 Mon Sep 17 00:00:00 2001
+From: Filippo Fontana <filippo.fontana@minervasys.tech>
+Date: Thu, 9 May 2024 17:52:07 +0200
+Subject: [PATCH 2/2] 10101#555: [configs, s32-cc] Don't switch to EL1 if we
+ have Jailhouse support
+
+Signed-off-by: Filippo Fontana <filippo.fontana@minervasys.tech>
+---
+ include/configs/s32-cc.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/include/configs/s32-cc.h b/include/configs/s32-cc.h
+index ce730b1ce8..9ce9608a79 100644
+--- a/include/configs/s32-cc.h
++++ b/include/configs/s32-cc.h
+@@ -70,9 +70,9 @@
+ /* Enable passing of ATAGs */
+ #define CONFIG_CMDLINE_TAG
+ 
+-#ifndef CONFIG_XEN_SUPPORT
+-#  define CONFIG_ARMV8_SWITCH_TO_EL1
+-#endif
++// #ifndef CONFIG_XEN_SUPPORT
++// #  define CONFIG_ARMV8_SWITCH_TO_EL1
++// #endif
+ 
+ /* Increase image size */
+ #define CONFIG_SYS_BOOTM_LEN		(SZ_64M)
+-- 
+2.45.2
+

@@ -1,0 +1,2074 @@
+From 8528c9213d63137be8dd54e44a7f8ed958829b1b Mon Sep 17 00:00:00 2001
+From: Filippo Fontana <filippo.fontana@minervasys.tech>
+Date: Thu, 9 May 2024 18:52:46 +0200
+Subject: [PATCH] Apply microsys BSP 36 patch
+
+Signed-off-by: Filippo Fontana <filippo.fontana@minervasys.tech>
+---
+ drivers/nxp/s32/clk/enable_clk.c              |  13 +
+ drivers/nxp/s32/ddr/ddr_lp.c                  |   4 +-
+ drivers/nxp/s32/ddr/ddr_utils.c               |   4 +-
+ drivers/nxp/s32/ddr/s32g2/dq_swap_cfg.c       | 100 ++--
+ drivers/nxp/s32/ddr/s32g3/dq_swap_cfg.c       |  35 ++
+ drivers/nxp/s32/i2c/s32_i2c.c                 | 104 +++-
+ fdts/crxs32g.dtsi                             |  52 ++
+ fdts/crxs32gr2.dtsi                           |  61 +++
+ fdts/crxs32gr3.dtsi                           |  75 +++
+ fdts/mpxs32g.dtsi                             | 455 ++++++++++++++++++
+ fdts/mpxs32g2.dtsi                            |  12 +
+ fdts/mpxs32g274ar2.dtsi                       |  55 +++
+ fdts/mpxs32g274ar3.dtsi                       |  44 ++
+ fdts/mpxs32g274ar5.dtsi                       |  39 ++
+ fdts/mpxs32g3.dtsi                            |  13 +
+ fdts/mpxs32g399ar5.dtsi                       |  56 +++
+ fdts/s32g274ar2sbc2.dts                       |  18 +
+ fdts/s32g274ar2sbc3.dts                       |  18 +
+ fdts/s32g274ar5sbc3.dts                       |  18 +
+ fdts/s32g399ar5sbc2.dts                       |  18 +
+ fdts/s32g399ar5sbc3.dts                       |  18 +
+ include/drivers/nxp/s32/ddr/ddr_utils.h       |   2 +-
+ include/drivers/nxp/s32/pmic/vr5510.h         |   6 +
+ .../dt-bindings/clock/s32gen1-clock-freq.h    |   6 +-
+ localversion-microsys                         |   1 +
+ plat/nxp/s32/s32_psci.c                       |  16 +-
+ plat/nxp/s32/s32_scmi_rst.c                   |  12 +-
+ plat/nxp/s32/s32_svc.c                        |   6 +-
+ plat/nxp/s32/s32g/include/s32g_vr5510.h       |   1 +
+ .../s32g/s32g2/mpxs32g274ar2/mpxs32g274ar2.mk |   7 +
+ .../s32g/s32g2/mpxs32g274ar5/mpxs32g274ar5.mk |   7 +
+ .../s32g274ar2sbc2/include/platform_def.h     |  11 +
+ .../s32/s32g/s32g2/s32g274ar2sbc2/platform.mk |  17 +
+ .../s32g274ar2sbc3/include/platform_def.h     |  11 +
+ .../s32/s32g/s32g2/s32g274ar2sbc3/platform.mk |  17 +
+ .../s32g274ar5sbc3/include/platform_def.h     |  11 +
+ .../s32/s32g/s32g2/s32g274ar5sbc3/platform.mk |  17 +
+ plat/nxp/s32/s32g/s32g2/s32g2_vr5510.c        |  16 +
+ .../s32g/s32g3/mpxs32g399ar5/mpxs32g399ar5.mk |   5 +
+ .../s32g399ar5sbc2/include/platform_def.h     |  11 +
+ .../s32/s32g/s32g3/s32g399ar5sbc2/platform.mk |  20 +
+ .../s32g399ar5sbc3/include/platform_def.h     |  11 +
+ .../s32/s32g/s32g3/s32g399ar5sbc3/platform.mk |  20 +
+ plat/nxp/s32/s32g/s32g3/s32g3_vr5510.c        |  14 +
+ plat/nxp/s32/s32g/s32g_vr5510.c               |  39 ++
+ 45 files changed, 1428 insertions(+), 68 deletions(-)
+ create mode 100644 fdts/crxs32g.dtsi
+ create mode 100644 fdts/crxs32gr2.dtsi
+ create mode 100644 fdts/crxs32gr3.dtsi
+ create mode 100644 fdts/mpxs32g.dtsi
+ create mode 100644 fdts/mpxs32g2.dtsi
+ create mode 100644 fdts/mpxs32g274ar2.dtsi
+ create mode 100644 fdts/mpxs32g274ar3.dtsi
+ create mode 100644 fdts/mpxs32g274ar5.dtsi
+ create mode 100644 fdts/mpxs32g3.dtsi
+ create mode 100644 fdts/mpxs32g399ar5.dtsi
+ create mode 100644 fdts/s32g274ar2sbc2.dts
+ create mode 100644 fdts/s32g274ar2sbc3.dts
+ create mode 100644 fdts/s32g274ar5sbc3.dts
+ create mode 100644 fdts/s32g399ar5sbc2.dts
+ create mode 100644 fdts/s32g399ar5sbc3.dts
+ create mode 100644 localversion-microsys
+ create mode 100644 plat/nxp/s32/s32g/s32g2/mpxs32g274ar2/mpxs32g274ar2.mk
+ create mode 100644 plat/nxp/s32/s32g/s32g2/mpxs32g274ar5/mpxs32g274ar5.mk
+ create mode 100644 plat/nxp/s32/s32g/s32g2/s32g274ar2sbc2/include/platform_def.h
+ create mode 100644 plat/nxp/s32/s32g/s32g2/s32g274ar2sbc2/platform.mk
+ create mode 100644 plat/nxp/s32/s32g/s32g2/s32g274ar2sbc3/include/platform_def.h
+ create mode 100644 plat/nxp/s32/s32g/s32g2/s32g274ar2sbc3/platform.mk
+ create mode 100644 plat/nxp/s32/s32g/s32g2/s32g274ar5sbc3/include/platform_def.h
+ create mode 100644 plat/nxp/s32/s32g/s32g2/s32g274ar5sbc3/platform.mk
+ create mode 100644 plat/nxp/s32/s32g/s32g3/mpxs32g399ar5/mpxs32g399ar5.mk
+ create mode 100644 plat/nxp/s32/s32g/s32g3/s32g399ar5sbc2/include/platform_def.h
+ create mode 100644 plat/nxp/s32/s32g/s32g3/s32g399ar5sbc2/platform.mk
+ create mode 100644 plat/nxp/s32/s32g/s32g3/s32g399ar5sbc3/include/platform_def.h
+ create mode 100644 plat/nxp/s32/s32g/s32g3/s32g399ar5sbc3/platform.mk
+
+diff --git a/drivers/nxp/s32/clk/enable_clk.c b/drivers/nxp/s32/clk/enable_clk.c
+index 6458f0b92..9988e233f 100644
+--- a/drivers/nxp/s32/clk/enable_clk.c
++++ b/drivers/nxp/s32/clk/enable_clk.c
+@@ -36,8 +36,21 @@ static void setup_fxosc(struct s32gen1_clk_priv *priv)
+ 	if (mmio_read_32(FXOSC_CTRL(fxosc)) & FXOSC_CTRL_OSCON)
+ 		return;
+ 
++#if defined(PLAT_mpxs32g274ar5) \
++	|| defined(PLAT_mpxs32g399ar5)
++	/*
++	 * Setup EXTAL:
++	 * OSCON = 1
++	 * OSC_BYP = 1
++	 * COMP_EN = 0
++	 */
++	ctrl = FXOSC_CTRL_OSC_BYP;
++	ctrl &= ~FXOSC_CTRL_COMP_EN;
++#else
+ 	ctrl = FXOSC_CTRL_COMP_EN;
+ 	ctrl &= ~FXOSC_CTRL_OSC_BYP;
++#endif
++
+ 	ctrl |= FXOSC_CTRL_EOCV(0x1);
+ 	ctrl |= FXOSC_CTRL_GM_SEL(0x7);
+ 	mmio_write_32(FXOSC_CTRL(fxosc), ctrl);
+diff --git a/drivers/nxp/s32/ddr/ddr_lp.c b/drivers/nxp/s32/ddr/ddr_lp.c
+index 21f540997..beacd8323 100644
+--- a/drivers/nxp/s32/ddr/ddr_lp.c
++++ b/drivers/nxp/s32/ddr/ddr_lp.c
+@@ -160,7 +160,7 @@ void ddrss_to_io_retention_mode(void)
+ 	mmio_write_32(DDRC_BASE_ADDR + OFFSET_DDRC_DFIMISC,
+ 		      dfimisc | DFI_FREQUENCY(DFIMISC_LP3_PHY_STATE));
+ 
+-#if !defined(PLAT_s32g3)
++#if !(defined(PLAT_s32g3) || defined(PLAT_mpxs32g399ar5))
+ 	/* Disable PHY Master. */
+ 	tmp32 = mmio_read_32(DDRC_BASE_ADDR + OFFSET_DFIPHYMSTR);
+ 	mmio_write_32(DDRC_BASE_ADDR + OFFSET_DFIPHYMSTR,
+@@ -198,7 +198,7 @@ void ddrss_to_io_retention_mode(void)
+ 	mmio_write_32(DDRC_BASE_ADDR + OFFSET_DDRC_DFIMISC,
+ 		      dfimisc & (~DFI_INIT_START_MASK));
+ 
+-#if !defined(PLAT_s32g3)
++#if !(defined(PLAT_s32g3) || defined(PLAT_mpxs32g399ar5))
+ 	/* Enable PHY Master. */
+ 	tmp32 = mmio_read_32(DDRC_BASE_ADDR + OFFSET_DFIPHYMSTR);
+ 	mmio_write_32(DDRC_BASE_ADDR + OFFSET_DFIPHYMSTR,
+diff --git a/drivers/nxp/s32/ddr/ddr_utils.c b/drivers/nxp/s32/ddr/ddr_utils.c
+index a41316240..3d94b2111 100644
+--- a/drivers/nxp/s32/ddr/ddr_utils.c
++++ b/drivers/nxp/s32/ddr/ddr_utils.c
+@@ -277,7 +277,7 @@ uint32_t post_train_setup(uint8_t options)
+ 		tmp32 = mmio_read_32(DDRC_BASE_ADDR + OFFSET_DDRC_SWSTAT);
+ 	} while ((tmp32 & SWSTAT_SWDONE_ACK_MASK) != SWSTAT_SW_NOT_DONE);
+ 
+-#if !defined(PLAT_s32g3)
++#if !(defined(PLAT_s32g3) || defined(PLAT_mpxs32g399ar5))
+ 	/* Disable PHY Master. */
+ 	tmp32 = mmio_read_32(DDRC_BASE_ADDR + OFFSET_DFIPHYMSTR);
+ 	mmio_write_32(DDRC_BASE_ADDR + OFFSET_DFIPHYMSTR,
+@@ -325,7 +325,7 @@ uint32_t post_train_setup(uint8_t options)
+ 	mmio_write_32(DDRC_BASE_ADDR + OFFSET_DDRC_DFIMISC,
+ 		      (~DFIMISC_DFI_INIT_START_MASK) & tmp32);
+ 
+-#if !defined(PLAT_s32g3)
++#if !(defined(PLAT_s32g3) || defined(PLAT_mpxs32g399ar5))
+ 	/* Enable PHY Master. */
+ 	tmp32 = mmio_read_32(DDRC_BASE_ADDR + OFFSET_DFIPHYMSTR);
+ 	mmio_write_32(DDRC_BASE_ADDR + OFFSET_DFIPHYMSTR,
+diff --git a/drivers/nxp/s32/ddr/s32g2/dq_swap_cfg.c b/drivers/nxp/s32/ddr/s32g2/dq_swap_cfg.c
+index 90ea6678c..f197b13d4 100644
+--- a/drivers/nxp/s32/ddr/s32g2/dq_swap_cfg.c
++++ b/drivers/nxp/s32/ddr/s32g2/dq_swap_cfg.c
+@@ -31,38 +31,74 @@
+ #include "ddr_init.h"
+ 
+ struct dqconf dq_swap_cfg[] = {
+-	{0x40394830, 0x00},
+-	{0x40394834, 0x01},
+-	{0x40394838, 0x02},
+-	{0x4039483c, 0x03},
+-	{0x40394840, 0x04},
+-	{0x40394844, 0x05},
+-	{0x40394848, 0x06},
+-	{0x4039484c, 0x07},
+-	{0x40396830, 0x00},
+-	{0x40396834, 0x01},
+-	{0x40396838, 0x02},
+-	{0x4039683c, 0x03},
+-	{0x40396840, 0x04},
+-	{0x40396844, 0x05},
+-	{0x40396848, 0x06},
+-	{0x4039684c, 0x07},
+-	{0x40398830, 0x00},
+-	{0x40398834, 0x01},
+-	{0x40398838, 0x02},
+-	{0x4039883c, 0x03},
+-	{0x40398840, 0x04},
+-	{0x40398844, 0x05},
+-	{0x40398848, 0x06},
+-	{0x4039884c, 0x07},
+-	{0x4039a830, 0x00},
+-	{0x4039a834, 0x01},
+-	{0x4039a838, 0x02},
+-	{0x4039a83c, 0x03},
+-	{0x4039a840, 0x04},
+-	{0x4039a844, 0x05},
+-	{0x4039a848, 0x06},
+-	{0x4039a84c, 0x07},
++#if defined(CONFIG_TARGET_MPXS32G274AR3) \
++	|| defined(CONFIG_TARGET_MPXS32G274AR5)
++		{0x40394830, 0x03},
++		{0x40394834, 0x05},
++		{0x40394838, 0x04},
++		{0x4039483c, 0x00},
++		{0x40394840, 0x02},
++		{0x40394844, 0x07},
++		{0x40394848, 0x01},
++		{0x4039484c, 0x06},
++		{0x40396830, 0x05},
++		{0x40396834, 0x01},
++		{0x40396838, 0x07},
++		{0x4039683c, 0x03},
++		{0x40396840, 0x00},
++		{0x40396844, 0x02},
++		{0x40396848, 0x06},
++		{0x4039684c, 0x04},
++		{0x40398830, 0x04},
++		{0x40398834, 0x02},
++		{0x40398838, 0x03},
++		{0x4039883c, 0x00},
++		{0x40398840, 0x01},
++		{0x40398844, 0x07},
++		{0x40398848, 0x06},
++		{0x4039884c, 0x05},
++		{0x4039a830, 0x03},
++		{0x4039a834, 0x02},
++		{0x4039a838, 0x06},
++		{0x4039a83c, 0x05},
++		{0x4039a840, 0x04},
++		{0x4039a844, 0x07},
++		{0x4039a848, 0x01},
++		{0x4039a84c, 0x00},
++#else
++		{0x40394830, 0x00},
++		{0x40394834, 0x01},
++		{0x40394838, 0x02},
++		{0x4039483c, 0x03},
++		{0x40394840, 0x04},
++		{0x40394844, 0x05},
++		{0x40394848, 0x06},
++		{0x4039484c, 0x07},
++		{0x40396830, 0x00},
++		{0x40396834, 0x01},
++		{0x40396838, 0x02},
++		{0x4039683c, 0x03},
++		{0x40396840, 0x04},
++		{0x40396844, 0x05},
++		{0x40396848, 0x06},
++		{0x4039684c, 0x07},
++		{0x40398830, 0x00},
++		{0x40398834, 0x01},
++		{0x40398838, 0x02},
++		{0x4039883c, 0x03},
++		{0x40398840, 0x04},
++		{0x40398844, 0x05},
++		{0x40398848, 0x06},
++		{0x4039884c, 0x07},
++		{0x4039a830, 0x00},
++		{0x4039a834, 0x01},
++		{0x4039a838, 0x02},
++		{0x4039a83c, 0x03},
++		{0x4039a840, 0x04},
++		{0x4039a844, 0x05},
++		{0x4039a848, 0x06},
++		{0x4039a84c, 0x07},
++#endif
+ };
+ 
+ size_t dq_swap_cfg_size = ARRAY_SIZE(dq_swap_cfg);
+diff --git a/drivers/nxp/s32/ddr/s32g3/dq_swap_cfg.c b/drivers/nxp/s32/ddr/s32g3/dq_swap_cfg.c
+index 90ea6678c..e8e7c73a6 100644
+--- a/drivers/nxp/s32/ddr/s32g3/dq_swap_cfg.c
++++ b/drivers/nxp/s32/ddr/s32g3/dq_swap_cfg.c
+@@ -31,6 +31,40 @@
+ #include "ddr_init.h"
+ 
+ struct dqconf dq_swap_cfg[] = {
++#if defined(PLAT_mpxs32g399ar5)
++		{0x40394830, 0x03},
++		{0x40394834, 0x05},
++		{0x40394838, 0x04},
++		{0x4039483c, 0x00},
++		{0x40394840, 0x02},
++		{0x40394844, 0x07},
++		{0x40394848, 0x01},
++		{0x4039484c, 0x06},
++		{0x40396830, 0x05},
++		{0x40396834, 0x01},
++		{0x40396838, 0x07},
++		{0x4039683c, 0x03},
++		{0x40396840, 0x00},
++		{0x40396844, 0x02},
++		{0x40396848, 0x06},
++		{0x4039684c, 0x04},
++		{0x40398830, 0x04},
++		{0x40398834, 0x02},
++		{0x40398838, 0x03},
++		{0x4039883c, 0x00},
++		{0x40398840, 0x01},
++		{0x40398844, 0x07},
++		{0x40398848, 0x06},
++		{0x4039884c, 0x05},
++		{0x4039a830, 0x03},
++		{0x4039a834, 0x02},
++		{0x4039a838, 0x06},
++		{0x4039a83c, 0x05},
++		{0x4039a840, 0x04},
++		{0x4039a844, 0x07},
++		{0x4039a848, 0x01},
++		{0x4039a84c, 0x00},
++#else
+ 	{0x40394830, 0x00},
+ 	{0x40394834, 0x01},
+ 	{0x40394838, 0x02},
+@@ -63,6 +97,7 @@ struct dqconf dq_swap_cfg[] = {
+ 	{0x4039a844, 0x05},
+ 	{0x4039a848, 0x06},
+ 	{0x4039a84c, 0x07},
++#endif
+ };
+ 
+ size_t dq_swap_cfg_size = ARRAY_SIZE(dq_swap_cfg);
+diff --git a/drivers/nxp/s32/i2c/s32_i2c.c b/drivers/nxp/s32/i2c/s32_i2c.c
+index cfc2146a5..2f0fcc111 100644
+--- a/drivers/nxp/s32/i2c/s32_i2c.c
++++ b/drivers/nxp/s32/i2c/s32_i2c.c
+@@ -10,8 +10,10 @@
+ #include <drivers/delay_timer.h>
+ #include <drivers/nxp/s32/i2c/s32_i2c.h>
+ #include "s32_clocks.h"
++#include "s32g_pinctrl.h"
+ 
+ /* Register index */
++#define IBAD	0
+ #define IBFD	1
+ #define IBCR	2
+ #define IBSR	3
+@@ -28,6 +30,7 @@
+ #define IBCR_MSSL	BIT(5)
+ 
+ #define IBSR_IBIF_CLEAR	BIT(1)
++#define IBSR_IBAL_CLEAR	BIT(4)
+ #define IBCR_MDIS_EN	(0 << 7)
+ #define IBCR_MDIS_DIS	BIT(7)
+ 
+@@ -38,28 +41,64 @@
+ 
+ #define I2C_IDLE			0
+ #define I2C_TRANSMISSION_COMPLETE	2
+-
+-static uint16_t s32_clk_div[] = {
+-	20,   22,   24,   26,   28,   30,   34,   40,   28,   32,
+-	36,   40,   44,   48,   58,   64,   48,   56,   64,   72,
+-	80,   88,   104,  128,  80,   96,   112,  128,  144,  160,
+-	192,  240,  160,  192,  224,  256,  288,  320,  384,  480,
+-	320,  384,  448,  512,  576,  640,  768,  960,  640,  768,
+-	896,  1024, 1152, 1280, 1536, 1920, 1280, 1536, 1792, 2048,
+-	2304, 2560, 3072, 3840
++#define I2C_BUSY			3
++
++static uint16_t s32_clk_div[][2] = {
++	{  34, 0x00}, {  36, 0x01}, {  38, 0x02}, {  40, 0x03}, {  42, 0x04},
++	// {  44, 0x08},
++	{  44, 0x05}, {  46, 0x06}, {  48, 0x09}, {  52, 0x0a}, {  54, 0x07},
++	//{  64, 0x10},
++	//{  72, 0x11},
++	{  56, 0x0b}, {  60, 0x0c}, {  64, 0x0d}, {  72, 0x0e}, {  80, 0x12},
++	//{  96, 0x18},
++	{  84, 0x0f}, {  88, 0x13}, {  96, 0x14}, { 104, 0x15}, { 112, 0x19},
++	//{ 160, 0x20},
++	{ 120, 0x16}, { 128, 0x1a}, { 144, 0x17}, { 160, 0x1c}, { 176, 0x1d},
++	//{ 256, 0x23},
++	{ 192, 0x21}, { 208, 0x1e}, { 224, 0x22}, { 256, 0x1f}, { 288, 0x24},
++	//{ 320, 0x28},
++	//{ 384, 0x29},
++	{ 320, 0x25}, { 384, 0x26}, { 448, 0x2a}, { 480, 0x27}, { 512, 0x2b},
++	//{ 640, 0x30},
++	//{ 768, 0x31},
++	{ 576, 0x2c}, { 640, 0x2d}, { 768, 0x2e}, { 896, 0x32}, { 960, 0x2f},
++	//{1280, 0x38},
++	//{1536, 0x39},
++	{1024, 0x33}, {1152, 0x34}, {1280, 0x35}, {1536, 0x36}, {1792, 0x3a},
++	{1920, 0x37}, {2048, 0x3b}, {2304, 0x3c}, {2560, 0x3d}, {3072, 0x3e},
++	{3840, 0x3f},
+ };
+ 
+-static inline void s32_i2c_disable(struct s32_i2c_bus *bus)
++static void s32_i2c_disable(struct s32_i2c_bus *bus)
+ {
+-	mmio_write_8(bus->base + IBCR, IBCR_MDIS_DIS);
+-	mmio_write_8(bus->base + IBSR, 0);
++	uint8_t reg;
++
++	reg = mmio_read_8(bus->base + IBCR);
++
++	// if module is enabled:
++	if ((reg & IBCR_MDIS_DIS) == 0) {
++		reg |= IBCR_MDIS_DIS;
++		mmio_write_8(bus->base + IBCR, reg);
++		mmio_write_8(bus->base + IBSR,
++				IBSR_IBIF_CLEAR | IBSR_IBAL_CLEAR);
++	}
+ }
+ 
+-static inline void s32_i2c_enable(struct s32_i2c_bus *bus)
++static void s32_i2c_enable(struct s32_i2c_bus *bus)
+ {
+-	mmio_write_8(bus->base + IBCR, IBCR_MDIS_EN);
+-	/* Clear interrupt flag */
+-	mmio_write_8(bus->base + IBSR, IBSR_IBIF_CLEAR);
++	uint8_t reg;
++
++	reg = mmio_read_8(bus->base + IBCR);
++
++	// if module is disabled:
++	if (reg & IBCR_MDIS_DIS) {
++		reg &= ~IBCR_MDIS_DIS;
++		mmio_write_8(bus->base + IBCR, reg);
++		udelay(50);
++		/* Clear interrupt flag */
++		mmio_write_8(bus->base + IBSR,
++				IBSR_IBIF_CLEAR | IBSR_IBAL_CLEAR);
++	}
+ }
+ 
+ /*
+@@ -72,12 +111,12 @@ static int s32_i2c_set_bus_speed(struct s32_i2c_bus *bus, int speed)
+ 	if (!bus || !bus->base)
+ 		return -EINVAL;
+ 
+-	for (i = 0; ARRAY_SIZE(s32_clk_div) - 1; i++)
+-		if ((I2C_CLK_FREQ / s32_clk_div[i]) <= speed)
++	for (i = 0; ARRAY_SIZE(s32_clk_div[0]) - 1; i++)
++		if ((I2C_CLK_FREQ / s32_clk_div[i][0]) <= speed)
+ 			break;
+ 
+ 	/* Write divider value */
+-	mmio_write_8(bus->base + IBFD, i);
++	mmio_write_8(bus->base + IBFD, s32_clk_div[i][1]);
+ 
+ 	/* Module reset */
+ 	s32_i2c_disable(bus);
+@@ -92,6 +131,9 @@ static int s32_i2c_wait(struct s32_i2c_bus *bus, unsigned int state)
+ 	uint8_t ibsr;
+ 	uint32_t wait_cnt = 1000;
+ 
++	if (state == I2C_IDLE)
++		wait_cnt = 50*1000;
++
+ 	while (wait_cnt--) {
+ 		ibsr = mmio_read_8(bus->base + IBSR);
+ 
+@@ -100,6 +142,10 @@ static int s32_i2c_wait(struct s32_i2c_bus *bus, unsigned int state)
+ 			if (!(ibsr & IBSR_IBB))
+ 				return 0;
+ 			break;
++		case I2C_BUSY:
++			if (ibsr & IBSR_IBB)
++				return 0;
++			break;
+ 		case I2C_TRANSMISSION_COMPLETE:
+ 			if (ibsr & IBSR_IBIF) {
+ 				/* Clear interrupt flag */
+@@ -202,6 +248,10 @@ static int s32_i2c_try_start(struct s32_i2c_bus *bus,
+ 	s32_i2c_disable(bus);
+ 	s32_i2c_enable(bus);
+ 
++	reg = mmio_read_8(bus->base + IBAD);
++	if (reg == (chip << 1))
++		mmio_write_8(bus->base + IBAD, reg ^ 2);
++
+ 	/* Wait in loop for IBB flag to clear. */
+ 	ret = s32_i2c_wait(bus, I2C_IDLE);
+ 	if (ret < 0)
+@@ -211,6 +261,10 @@ static int s32_i2c_try_start(struct s32_i2c_bus *bus,
+ 	reg = mmio_read_8(bus->base + IBCR) | IBCR_MSSL;
+ 	mmio_write_8(bus->base + IBCR, reg);
+ 
++	ret = s32_i2c_wait(bus, I2C_BUSY);
++	if (ret < 0)
++		return ret;
++
+ 	/* Set transmission and noack */
+ 	reg |= IBCR_TX | IBCR_NOACK;
+ 	mmio_write_8(bus->base + IBCR, reg);
+@@ -221,6 +275,8 @@ static int s32_i2c_try_start(struct s32_i2c_bus *bus,
+ 		return ret;
+ 
+ 	return s32_i2c_address_setup(bus, addr, addr_len);
++
++	return 0;
+ }
+ 
+ /*
+@@ -398,6 +454,11 @@ int s32_i2c_init(struct s32_i2c_bus *bus)
+ 		return -EINVAL;
+ 	}
+ 
++	/*
++	 * Take care that pin muxing is setup correctly:
++	 */
++	i2c_config_pinctrl();
++
+ 	return s32_i2c_set_bus_speed(bus, bus->speed);
+ }
+ 
+@@ -421,5 +482,10 @@ void s32_i2c_get_setup_from_fdt(void *fdt, int node,
+ 
+ 	cuint = fdt_getprop(fdt, node, "clock-frequency", NULL);
+ 	bus->speed = cuint == NULL ? S32_DEFAULT_SPEED : fdt32_to_cpu(*cuint);
++
++	/*
++	 * Initialize controller:
++	 */
++	s32_i2c_init(bus);
+ }
+ 
+diff --git a/fdts/crxs32g.dtsi b/fdts/crxs32g.dtsi
+new file mode 100644
+index 000000000..6b4eff11a
+--- /dev/null
++++ b/fdts/crxs32g.dtsi
+@@ -0,0 +1,52 @@
++/*
++ * Copyright (C) 2023 MicroSys Electronics GmbH
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++/ {
++	model = "MicroSys CRXS32G";
++};
++
++&gmac0 {
++	status = "okay";
++	phy-mode = "sgmii";
++};
++
++&pfe_mdio1 {
++	status = "okay";
++};
++
++&pfe_mdio2 {
++	status = "okay";
++};
++
++&i2c1 {
++
++	gpio43_1: gpio@43_1 {
++		compatible = "fcs,fxl6408";
++		reg = <0x43>;
++		#gpio-cells = <2>;
++		gpio-bank-name = "crx0-";
++		direction = [40];
++		input-default-state = [3e];
++		output-default-state = [00];
++		pull-config = [00 3e]; /* pull-enable / pull-up/down */
++		u-boot,i2c-offset-len = <1>; /* one address byte */
++		/*
++		 * Pin             Function           Direction    Polarity    State
++		 * =================================================================
++		 * GPIO0           SJA1124_STAT       in           high        low
++		 * GPIO1           SJA1124_INT#       in           low         high
++		 * GPIO2           AETH_IRQ#          in           low         high
++		 * GPIO3           AETH_RST_CORE#     in           low         high
++		 * GPIO4           LAN_IRQ#           in           low         high
++		 * GPIO5           SD_CD#             in           low         high
++		 * GPIO6           LIN_SLP            out          high        low
++		 * GPIO7           n/c                xxx          xxx         xxx
++		 *
++		 * Note: GPIO7 was CAN_STB on Rev.1. This function has been moved to GPIO7 at GPIO@44
++		 * below. There this pin is called STBY_ON# with reversed polarity!
++		 */
++	};
++};
+diff --git a/fdts/crxs32gr2.dtsi b/fdts/crxs32gr2.dtsi
+new file mode 100644
+index 000000000..572bcdf43
+--- /dev/null
++++ b/fdts/crxs32gr2.dtsi
+@@ -0,0 +1,61 @@
++/*
++ * Copyright (C) 2023 MicroSys Electronics GmbH
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++#include "crxs32g.dtsi"
++
++/ {
++	model = "MicroSys CRXS32GR2";
++};
++
++&i2c1 {
++
++	gpio44_1: gpio@44_1 {
++		compatible = "fcs,fxl6408";
++		reg = <0x44>;
++		#gpio-cells = <2>;
++		gpio-bank-name = "crx1-";
++		direction = [c1];
++		input-default-state = [00];
++
++		/*
++		 * Bit 0: SERDES_SEL
++		 *
++		 * Selects where the SerDes lanes of SerDes_1 are routed to:
++		 * --------------------------------------------------------------------------------
++		 *
++		 * 0 - PHY lane 0 is SGMII 3.125Gbps (PFE_MAC0) => SJA1110 P4 with 2.5Gb
++		 *     PHY lane 1 is not available
++		 *     This setting needs PCIe1/SGMII CLK of 125MHz.
++		 * 1 - PHY lane 0 is PCIe1_X1 => M.2 slot
++		 *     PHY lane 1 is SGMII 1.25Gbps (PFE_MAC0 or PFE_MAC1) => SJA1110 P4 with 1Gb
++		 *     This setting needs PCIe1/SGMII CLK of 100MHz.
++		 *
++		 *     The default is 1.
++		 */
++		output-default-state = [c1];
++
++		pull-config = [80 c1]; /* pull-enable / pull-up/down */
++		u-boot,i2c-offset-len = <1>; /* one address byte */
++		/*
++		 * Pin             Function           Direction    Polarity    State
++		 * =================================================================
++		 * GPIO0           SERDES_SEL         out          high        high
++		 * GPIO1           n/c                xxx          xxx         xxx
++		 * GPIO2           n/c                xxx          xxx         xxx
++		 * GPIO3           n/c                xxx          xxx         xxx
++		 * GPIO4           n/c                xxx          xxx         xxx
++		 * GPIO5           n/c                xxx          xxx         xxx
++		 * GPIO6           CANSIC_EN          out          high        high
++		 * GPIO7           STBY_ON#           out          low         high
++		 *
++		 * Note 1: STBY_ON# was GPIO7 at GPIO@43 above on Rev.1. There this pin was called
++		 * CAN_STB with reversed polarity!
++		 *
++		 * Note 2: STBY_ON# controlls whether the CAN-bus tranceivers are in standby mode.
++		 * If STBY_ON# is high the transceivers are active and functional.
++		 */
++	};
++};
+diff --git a/fdts/crxs32gr3.dtsi b/fdts/crxs32gr3.dtsi
+new file mode 100644
+index 000000000..2b4ed57f9
+--- /dev/null
++++ b/fdts/crxs32gr3.dtsi
+@@ -0,0 +1,75 @@
++/*
++ * Copyright (C) 2023 MicroSys Electronics GmbH
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++#include "crxs32g.dtsi"
++
++/ {
++	model = "MicroSys CRXS32GR3";
++};
++
++&leds {
++    user1 {
++        label = "user1";
++        gpios = <&gpio44_1 4 0>;
++        default-state = "off";
++    };
++    user2 {
++        label = "user2";
++        gpios = <&gpio44_1 5 0>;
++        default-state = "off";
++    };
++};
++
++&i2c1 {
++
++    gpio44_1: gpio@44_1 {
++        compatible = "fcs,fxl6408";
++        reg = <0x44>;
++        #gpio-cells = <2>;
++        gpio-bank-name = "crx1-";
++        direction = [f5];
++        input-default-state = [00];
++
++        /*
++         * Bit 0: SERDES_SEL
++         *
++         *        Selects where the SerDes lanes of SerDes_1 are routed to:
++         *        --------------------------------------------------------------------------------
++         *
++         *        0 - PHY lane 0 is SGMII 3.125Gbps (PFE_MAC0) => SJA1110 P4 with 2.5Gb
++         *            PHY lane 1 is not available
++         *            This setting needs PCIe1/SGMII CLK of 125MHz.
++         *
++         *        1 - PHY lane 0 is PCIe1_X1 => M.2 slot
++         *            PHY lane 1 is SGMII 1.25Gbps (PFE_MAC0 or PFE_MAC1) => SJA1110 P4 with 1Gb
++         *            This setting needs PCIe1/SGMII CLK of 100MHz.
++         *
++         *        The default is 1.
++         */
++        output-default-state = [c1];
++
++        pull-config = [84 f5]; /* pull-enable / pull-up/down */
++        u-boot,i2c-offset-len = <1>; /* one address byte */
++        /*
++         * Pin             Function           Direction    Polarity    State
++         * =================================================================
++         * GPIO0           SERDES_SEL         out          high        high
++         * GPIO1           KL15_IN            in           high        low
++         * GPIO2           KL15_HOLD          out          high        high
++         * GPIO3           n/c                xxx          xxx         xxx
++         * GPIO4           LED1               out          high        low
++         * GPIO5           LED2               out          high        low
++         * GPIO6           CANSIC_EN          out          high        high
++         * GPIO7           STBY_ON#           out          low         high
++         *
++         * Note 1: STBY_ON# was GPIO7 at GPIO@43 above on Rev.1. There this pin was called
++         * CAN_STB with reversed polarity!
++         *
++         * Note 2: STBY_ON# controlls whether the CAN-bus tranceivers are in standby mode.
++         * If STBY_ON# is high the transceivers are active and functional.
++         */
++    };
++};
+diff --git a/fdts/mpxs32g.dtsi b/fdts/mpxs32g.dtsi
+new file mode 100644
+index 000000000..ded1d80b3
+--- /dev/null
++++ b/fdts/mpxs32g.dtsi
+@@ -0,0 +1,455 @@
++/*
++ * Copyright (C) 2023 MicroSys Electronics GmbH
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++#include <dt-bindings/gpio/gpio.h>
++
++/ {
++	model = "MicroSys MPXS32G";
++
++	aliases {
++		usb0 = &usbotg;
++	};
++
++	usbotg: usb@44064000 {
++		compatible = "fsl,imx27-usb";
++		reg = <0x0 0x44064000 0x0 0x200>;
++		clocks = <&clks S32G_SCMI_CLK_USB_MEM>,
++			   <&clks S32G_SCMI_CLK_USB_LOW>;
++		pinctrl-0 = <&usb_pins>;
++		pinctrl-names = "default";
++		phys = <&saf1508_phy>;
++		dr_mode = "host";
++	};
++
++	saf1508_phy: usb_phy@44064000 {
++		compatible = "nxp,saf1508bet";
++		reg = <0x0 0x44064000 0x0 0x200>;
++		#phy-cells = <0>;
++	};
++};
++
++&usbotg {
++	status = "okay";
++};
++
++&pfe {
++	status = "okay";
++
++	pinctrl-0 = <&pfe0_pins>;
++	pinctrl-1 = <>;
++	pinctrl-2 = <&pfe1_pins>;
++	pinctrl-3 = <>;
++	pinctrl-4 = <&pfe2_pins>;
++	pinctrl-5 = <>;
++	pinctrl-6 = <&pfe0_mdio_pins>;
++	pinctrl-7 = <&pfe1_mdio_pins>;
++	pinctrl-8 = <&pfe2_mdio_pins>;
++	pinctrl-names = "pfe0_rgmii", "pfe0_sgmii",
++		"pfe1_rgmii", "pfe1_sgmii",
++		"pfe2_rgmii", "pfe2_sgmii",
++		"pfe_mdio0", "pfe_mdio1", "pfe_mdio2";
++
++	pfe_mdio0: pfe_mdio0 {
++		reg = <0x00>;
++		compatible = "nxp,pfeng-mdio";
++		status = "disabled";
++	};
++
++	pfe_mdio1: pfe_mdio1 {
++		reg = <0x01>;
++		compatible = "nxp,pfeng-mdio";
++		status = "disabled";
++	};
++
++	pfe_mdio2: pfe_mdio2 {
++		reg = <0x02>;
++		compatible = "nxp,pfeng-mdio";
++		status = "disabled";
++	};
++};
++
++&usdhc0 {
++	/* By default, sd0 pins are able to work at 100Mhz and 200Mhz */
++	pinctrl-0 = <&sd0_pins>;
++	pinctrl-1 = <>;
++	pinctrl-2 = <>;
++	pinctrl-names = "default", "state_100mhz", "state_200mhz";
++	status = "okay";
++};
++
++&gmac0_mdio {
++	status = "disabled";
++};
++
++&gmac0 {
++	pinctrl-0 = <&gmac0_pins>;
++	pinctrl-1 = <>;
++	pinctrl-2 = <&gmac0_mdio_pins>;
++	pinctrl-names = "gmac_rgmii", "gmac_sgmii", "gmac_mdio";
++};
++
++&uart0 {
++	pinctrl-0 = <&uart0_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++};
++
++&i2c0 {
++	pinctrl-names = "default", "gpio";
++	pinctrl-0 = <&i2c0_pins>;
++	pinctrl-1 = <&i2c0_gpio_pins>;
++	scl-gpios = <&gpio 17 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
++	sda-gpios = <&gpio 16 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
++	clock-frequency=<100000>;
++	status = "okay";
++
++	eeprom@50 {
++		compatible = "atmel,24c01a";
++		reg = <0x50>;
++	};
++
++	eeprom@56 {
++		compatible = "atmel,24c01a";
++		reg = <0x56>;
++	};
++};
++
++&i2c1 {
++	pinctrl-names = "default", "gpio";
++	pinctrl-0 = <&i2c1_pins>;
++	pinctrl-1 = <&i2c1_gpio_pins>;
++	scl-gpios = <&gpio 19 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
++	sda-gpios = <&gpio 20 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
++	clock-frequency=<100000>;
++	status = "disabled";
++};
++
++&i2c2 {
++	pinctrl-names = "default", "gpio";
++	pinctrl-0 = <&i2c2_pins>;
++	pinctrl-1 = <&i2c2_gpio_pins>;
++	scl-gpios = <&gpio 21 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
++	sda-gpios = <&gpio 22 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
++	clock-frequency=<100000>;
++	status = "disabled";
++};
++
++&i2c4 {
++	pinctrl-names = "default", "gpio";
++	pinctrl-0 = <&i2c4_pins>;
++	pinctrl-1 = <&i2c4_gpio_pins>;
++	scl-gpios = <&gpio 34 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
++	sda-gpios = <&gpio 33 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
++	status = "okay";
++	clock-frequency=<100000>;
++
++	vr5510@20 {
++		compatible = "nxp,vr5510";
++		reg = <0x20>;
++		status = "okay";
++	};
++
++	vr5510_fsu@21 {
++		compatible = "nxp,vr5510";
++		reg = <0x21>;
++		status = "okay";
++	};
++
++};
++
++&wkpu {
++	status = "okay";
++};
++
++&qspi {
++	pinctrl-0 = <&qspi_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++
++	/delete-node/ mx25uw51245g@0;
++
++	mt35xu512aba@0 {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		compatible = "jedec,spi-nor";
++		spi-max-frequency = <200000000>;
++		spi-tx-bus-width = <8>;
++		spi-rx-bus-width = <8>;
++		reg = <0>;
++
++		partition@0 {
++			reg = <0 0x200000>;
++			label = "boot";
++		};
++
++		partition@1 {
++			reg = <0x3000000 0x28000>;
++			label = "pfe";
++		};
++	};
++};
++
++&pfe_mac0_rmii {
++	clock-frequency = <50000000>;
++};
++
++&pfe_mac1_rmii {
++	clock-frequency = <50000000>;
++};
++
++&pfe_mac2_rmii {
++	clock-frequency = <50000000>;
++};
++
++&pinctrl {
++	u-boot,dm-pre-reloc;
++
++	i2c0_pins: i2c0 {
++		i2c0_grp0 {
++			pinmux = <S32CC_PINMUX(16, FUNC1)>,
++				 <S32CC_PINMUX(17, FUNC1)>;
++			drive-open-drain;
++			output-enable;
++			input-enable;
++			slew-rate = <S32CC_SLEW_83MHZ>;
++		};
++
++		i2c0_grp1 {
++			pinmux = <S32CC_PINMUX(565, FUNC2)>,
++				 <S32CC_PINMUX(566, FUNC2)>;
++		};
++
++	};
++
++	i2c0_gpio_pins: i2c0_gpio {
++		i2c0_gpio_grp0 {
++			pinmux = <S32CC_PINMUX(16, FUNC0)>,
++				 <S32CC_PINMUX(17, FUNC0)>;
++			drive-open-drain;
++			output-enable;
++			slew-rate = <S32CC_SLEW_208MHZ>;
++		};
++
++		i2c0_gpio_grp1 {
++			pinmux = <S32CC_PINMUX(565, FUNC0)>,
++				 <S32CC_PINMUX(566, FUNC0)>;
++		};
++
++	};
++
++	i2c1_pins: i2c1 {
++		i2c1_grp0 {
++			pinmux = <S32CC_PINMUX(19, FUNC1)>,
++				 <S32CC_PINMUX(20, FUNC1)>;
++			drive-open-drain;
++			output-enable;
++			input-enable;
++			slew-rate = <S32CC_SLEW_83MHZ>;
++		};
++
++		i2c1_grp1 {
++			pinmux = <S32CC_PINMUX(717, FUNC2)>,
++				 <S32CC_PINMUX(718, FUNC2)>;
++		};
++
++	};
++
++	i2c1_gpio_pins: i2c1_gpio {
++		i2c1_gpio_grp0 {
++			pinmux = <S32CC_PINMUX(19, FUNC0)>,
++				 <S32CC_PINMUX(20, FUNC0)>;
++			drive-open-drain;
++			output-enable;
++			slew-rate = <S32CC_SLEW_208MHZ>;
++		};
++
++		i2c1_gpio_grp1 {
++			pinmux = <S32CC_PINMUX(717, FUNC0)>,
++				 <S32CC_PINMUX(718, FUNC0)>;
++		};
++
++	};
++
++	i2c2_pins: i2c2 {
++		i2c2_grp0 {
++			pinmux = <S32CC_PINMUX(21, FUNC1)>,
++				 <S32CC_PINMUX(22, FUNC1)>;
++			drive-open-drain;
++			output-enable;
++			input-enable;
++			slew-rate = <S32CC_SLEW_83MHZ>;
++		};
++
++		i2c2_grp1 {
++			pinmux = <S32CC_PINMUX(719, FUNC2)>,
++				 <S32CC_PINMUX(720, FUNC2)>;
++		};
++
++	};
++
++	i2c2_gpio_pins: i2c2_gpio {
++		i2c2_gpio_grp0 {
++			pinmux = <S32CC_PINMUX(21, FUNC0)>,
++				 <S32CC_PINMUX(22, FUNC0)>;
++			drive-open-drain;
++			output-enable;
++			slew-rate = <S32CC_SLEW_208MHZ>;
++		};
++
++		i2c2_gpio_grp1 {
++			pinmux = <S32CC_PINMUX(719, FUNC0)>,
++				 <S32CC_PINMUX(720, FUNC0)>;
++		};
++
++	};
++
++	i2c4_pins: i2c4 {
++		i2c4_grp0 {
++			pinmux = <S32CC_PINMUX(33, FUNC1)>;
++			drive-open-drain;
++			output-enable;
++			input-enable;
++			slew-rate = <S32CC_SLEW_83MHZ>;
++		};
++
++		i2c4_grp1 {
++			pinmux = <S32CC_PINMUX(34, FUNC2)>;
++			drive-open-drain;
++			output-enable;
++			input-enable;
++			slew-rate = <S32CC_SLEW_83MHZ>;
++		};
++
++		i2c4_grp2 {
++			pinmux = <S32CC_PINMUX(724, FUNC3)>,
++				 <S32CC_PINMUX(723, FUNC3)>;
++		};
++
++	};
++
++	i2c4_gpio_pins: i2c4_gpio {
++		i2c4_gpio_grp0 {
++			pinmux = <S32CC_PINMUX(33, FUNC0)>,
++				 <S32CC_PINMUX(34, FUNC0)>;
++			drive-open-drain;
++			output-enable;
++			slew-rate = <S32CC_SLEW_208MHZ>;
++		};
++
++		i2c4_gpio_grp1 {
++			pinmux = <S32CC_PINMUX(724, FUNC0)>,
++				 <S32CC_PINMUX(723, FUNC0)>;
++		};
++
++	};
++
++	qspi_pins: qspi {
++		qspi_grp0 {
++			pinmux = <S32CC_PINMUX(85, FUNC1)>,
++				 <S32CC_PINMUX(86, FUNC1)>,
++				 <S32CC_PINMUX(87, FUNC1)>,
++				 <S32CC_PINMUX(88, FUNC1)>,
++				 <S32CC_PINMUX(89, FUNC1)>,
++				 <S32CC_PINMUX(90, FUNC1)>,
++				 <S32CC_PINMUX(91, FUNC1)>,
++				 <S32CC_PINMUX(92, FUNC1)>,
++				 <S32CC_PINMUX(93, FUNC1)>;
++			output-enable;
++			input-enable;
++			slew-rate = <S32CC_SLEW_208MHZ>;
++			bias-pull-down;
++		};
++
++		qspi_grp1 {
++			pinmux = <S32CC_PINMUX(96, FUNC1)>,
++				 <S32CC_PINMUX(97, FUNC1)>,
++				 <S32CC_PINMUX(98, FUNC1)>,
++				 <S32CC_PINMUX(99, FUNC1)>;
++			output-enable;
++			slew-rate = <S32CC_SLEW_208MHZ>;
++		};
++
++		qspi_grp2 {
++			pinmux = <S32CC_PINMUX(100, FUNC1)>,
++				 <S32CC_PINMUX(101, FUNC1)>;
++			output-enable;
++			slew-rate = <S32CC_SLEW_208MHZ>;
++			bias-pull-up;
++		};
++
++		qspi_grp3 {
++			pinmux = <S32CC_PINMUX(540, FUNC2)>,
++				 <S32CC_PINMUX(541, FUNC2)>,
++				 <S32CC_PINMUX(542, FUNC2)>,
++				 <S32CC_PINMUX(543, FUNC2)>,
++				 <S32CC_PINMUX(544, FUNC2)>,
++				 <S32CC_PINMUX(545, FUNC2)>,
++				 <S32CC_PINMUX(546, FUNC2)>,
++				 <S32CC_PINMUX(547, FUNC2)>,
++				 <S32CC_PINMUX(548, FUNC2)>;
++		};
++
++	};
++
++	uart0_pins: uart0 {
++		uart0_grp0 {
++			pinmux = <S32CC_PINMUX(41, FUNC1)>;
++			output-enable;
++			slew-rate = <S32CC_SLEW_83MHZ>;
++		};
++
++		uart0_grp1 {
++			pinmux = <S32CC_PINMUX(42, FUNC0)>;
++			input-enable;
++			slew-rate = <S32CC_SLEW_83MHZ>;
++		};
++	};
++
++	usb_pins: usb {
++		usb_grp0 {
++			pinmux = <S32CC_PINMUX(62, FUNC1)>,
++				 <S32CC_PINMUX(63, FUNC1)>,
++				 <S32CC_PINMUX(64, FUNC1)>,
++				 <S32CC_PINMUX(65, FUNC1)>,
++				 <S32CC_PINMUX(112, FUNC1)>,
++				 <S32CC_PINMUX(188, FUNC1)>,
++				 <S32CC_PINMUX(189, FUNC1)>,
++				 <S32CC_PINMUX(190, FUNC1)>;
++			output-enable;
++			input-enable;
++			slew-rate = <S32CC_SLEW_208MHZ>;
++		};
++
++		usb_grp1 {
++			pinmux = <S32CC_PINMUX(184, FUNC0)>,
++				 <S32CC_PINMUX(185, FUNC0)>,
++				 <S32CC_PINMUX(187, FUNC0)>;
++			input-enable;
++			slew-rate = <S32CC_SLEW_208MHZ>;
++		};
++
++		usb_grp2 {
++			pinmux = <S32CC_PINMUX(186, FUNC1)>;
++			output-enable;
++			slew-rate = <S32CC_SLEW_208MHZ>;
++		};
++
++		usb_grp3 {
++			pinmux = <S32CC_PINMUX(895, FUNC2)>,
++				 <S32CC_PINMUX(896, FUNC2)>,
++				 <S32CC_PINMUX(897, FUNC2)>,
++				 <S32CC_PINMUX(898, FUNC2)>,
++				 <S32CC_PINMUX(899, FUNC2)>,
++				 <S32CC_PINMUX(900, FUNC2)>,
++				 <S32CC_PINMUX(901, FUNC2)>,
++				 <S32CC_PINMUX(902, FUNC2)>,
++				 <S32CC_PINMUX(903, FUNC2)>,
++				 <S32CC_PINMUX(904, FUNC2)>,
++				 <S32CC_PINMUX(905, FUNC2)>;
++		};
++
++	};
++};
+diff --git a/fdts/mpxs32g2.dtsi b/fdts/mpxs32g2.dtsi
+new file mode 100644
+index 000000000..fac9e0c99
+--- /dev/null
++++ b/fdts/mpxs32g2.dtsi
+@@ -0,0 +1,12 @@
++/*
++ * Copyright (C) 2023 MicroSys Electronics GmbH
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++#include "s32g2.dtsi"
++#include "mpxs32g.dtsi"
++
++/ {
++	model = "MicroSys MPXS32G2";
++};
+diff --git a/fdts/mpxs32g274ar2.dtsi b/fdts/mpxs32g274ar2.dtsi
+new file mode 100644
+index 000000000..0da351f82
+--- /dev/null
++++ b/fdts/mpxs32g274ar2.dtsi
+@@ -0,0 +1,55 @@
++/*
++ * Copyright (C) 2021-2022 MicroSys Electronics GmbH
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++#include "mpxs32g2.dtsi"
++
++/ {
++	model = "MicroSys MPXS32G274AR2";
++
++	leds: leds {
++		compatible = "gpio-leds";
++		user0 {
++			label = "user0";
++			gpios = <&gpio43_0 4 0>;
++			default-state = "off";
++		};
++	};
++};
++
++&i2c0 {
++	gpio43_0: gpio@43 {
++		compatible = "fcs,fxl6408";
++		reg = <0x43>;
++		#gpio-cells = <2>;
++		gpio-bank-name = "mpx0-";
++		direction = [10];
++		input-default-state = [0f];
++		output-default-state = [00];
++		pull-config = [10 0f]; /* pull-enable / pull-up/down */
++		u-boot,i2c-offset-len = <1>; /* one address byte */
++	};
++
++	// PCA9561: EEPROM DIP switch
++	pca9561: dip@4d {
++		compatible = "nxp,pca9561";
++		reg = <0x4d>;
++	};
++
++	pcf85263: rtc@51 {
++		compatible = "nxp,pcf85263", "pcf85263";
++		reg = <0x51>;
++	};
++
++	at24c128: eeprom@54 {
++		compatible = "atmel,24c128";
++		reg = <0x54>;
++		u-boot,i2c-offset-len = <2>; /* two address bytes */
++		pagesize = <64>;
++		page-write-delay = <5000>; /* 5ms delay when writing */
++		max-speed = <400000>;
++	};
++
++};
+diff --git a/fdts/mpxs32g274ar3.dtsi b/fdts/mpxs32g274ar3.dtsi
+new file mode 100644
+index 000000000..de6b403f1
+--- /dev/null
++++ b/fdts/mpxs32g274ar3.dtsi
+@@ -0,0 +1,44 @@
++/*
++ * Copyright (C) 2023 MicroSys Electronics GmbH
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++#include "mpxs32g2.dtsi"
++
++/ {
++	model = "MicroSys MPXS32G274AR3";
++
++	leds: leds {
++		compatible = "gpio-leds";
++		user0 {
++			label = "user0";
++			// connected to PC13/GPIO45 on gpio
++			gpios = <&gpio 45 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++	};
++};
++
++&i2c0 {
++
++	mcu: mcu@10 {
++		reg = <0x10>;
++		u-boot,i2c-offset-len = <1>;
++		max-speed = <100000>;
++	};
++
++	rv3028: rtc@52 {
++		compatible = "mc,rv3028", "microcrystal,rv3028";
++		reg = <0x52>;
++	};
++
++	m24c64: eeprom@54 {
++		compatible = "stmicro,m64c24";
++		reg = <0x54>;
++		u-boot,i2c-offset-len = <2>; /* two address bytes */
++		pagesize = <32>;
++		page-write-delay = <4000>; /* 4ms delay when writing */
++		max-speed = <400000>;
++	};
++};
+diff --git a/fdts/mpxs32g274ar5.dtsi b/fdts/mpxs32g274ar5.dtsi
+new file mode 100644
+index 000000000..7dca6cc13
+--- /dev/null
++++ b/fdts/mpxs32g274ar5.dtsi
+@@ -0,0 +1,39 @@
++/*
++ * Copyright (C) 2023 MicroSys Electronics GmbH
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++#include "mpxs32g274ar3.dtsi"
++
++/ {
++	model = "MicroSys MPXS32G274AR5";
++};
++
++&i2c0 {
++
++	mcp9802: mcp9802@48 {
++		compatible = "maxim,mcp980x";
++		reg = <0x48>;
++		u-boot,i2c-offset-len = <1>;
++	};
++
++	tmp112: tmp112@49 {
++		compatible = "ti,tmp112";
++		reg = <0x49>;
++		u-boot,i2c-offset-len = <1>;
++	};
++
++};
++
++&gpio {
++
++	/*
++	 * PD11 GPIO[59] 'EFUSE_EN' controls the programming
++	 * voltage for the fuses.
++	 * Note that this signal is high-active. It should
++	 * be 'input' or set to '0' when it is configured as
++	 * output for normal operation.
++	 * Its naming in U-Boot is 'siul2-gpio@4009d70059'.
++	 */
++};
+diff --git a/fdts/mpxs32g3.dtsi b/fdts/mpxs32g3.dtsi
+new file mode 100644
+index 000000000..e4df1cc7d
+--- /dev/null
++++ b/fdts/mpxs32g3.dtsi
+@@ -0,0 +1,13 @@
++/*
++ * Copyright (C) 2023 MicroSys Electronics GmbH
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++#include "s32g.dtsi"
++#include "s32g3.dtsi"
++#include "mpxs32g.dtsi"
++
++/ {
++	model = "MicroSys MPXS32G3";
++};
+diff --git a/fdts/mpxs32g399ar5.dtsi b/fdts/mpxs32g399ar5.dtsi
+new file mode 100644
+index 000000000..a064e4a06
+--- /dev/null
++++ b/fdts/mpxs32g399ar5.dtsi
+@@ -0,0 +1,56 @@
++/*
++ * Copyright (C) 2023 MicroSys Electronics GmbH
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++#include "mpxs32g3.dtsi"
++
++/ {
++	model = "MicroSys MPXS32G399AR5";
++
++	leds: leds {
++		compatible = "gpio-leds";
++		user0 {
++			label = "user0";
++			// connected to PC13/GPIO45 on gpio
++			gpios = <&gpio 45 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++	};
++};
++
++&i2c0 {
++
++	mcu: mcu@10 {
++		reg = <0x10>;
++		u-boot,i2c-offset-len = <1>;
++		max-speed = <100000>;
++	};
++
++	mcp9802: mcp9802@48 {
++		compatible = "maxim,mcp980x";
++		reg = <0x48>;
++		u-boot,i2c-offset-len = <1>;
++	};
++
++	tmp112: tmp112@49 {
++		compatible = "ti,tmp112";
++		reg = <0x49>;
++		u-boot,i2c-offset-len = <1>;
++	};
++
++	rv3028: rtc@52 {
++		compatible = "mc,rv3028", "microcrystal,rv3028";
++		reg = <0x52>;
++	};
++
++	m24c64: eeprom@54 {
++		compatible = "stmicro,m64c24";
++		reg = <0x54>;
++		u-boot,i2c-offset-len = <2>; /* two address bytes */
++		pagesize = <32>;
++		page-write-delay = <4000>; /* 4ms delay when writing */
++		max-speed = <400000>;
++	};
++};
+diff --git a/fdts/s32g274ar2sbc2.dts b/fdts/s32g274ar2sbc2.dts
+new file mode 100644
+index 000000000..d26545360
+--- /dev/null
++++ b/fdts/s32g274ar2sbc2.dts
+@@ -0,0 +1,18 @@
++/*
++ * Copyright (C) 2022 MicroSys Electronics GmbH
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++/dts-v1/;
++
++#include "mpxs32g274ar2.dtsi"
++#include "crxs32gr2.dtsi"
++
++/ {
++	model = "MicroSys S32G274AR2SBC2";
++};
++
++&i2c1 {
++	status = "okay";
++};
+diff --git a/fdts/s32g274ar2sbc3.dts b/fdts/s32g274ar2sbc3.dts
+new file mode 100644
+index 000000000..3e8f3f82c
+--- /dev/null
++++ b/fdts/s32g274ar2sbc3.dts
+@@ -0,0 +1,18 @@
++/*
++ * Copyright (C) 2022 MicroSys Electronics GmbH
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++/dts-v1/;
++
++#include "mpxs32g274ar2.dtsi"
++#include "crxs32gr3.dtsi"
++
++/ {
++	model = "MicroSys S32G274AR2SBC3";
++};
++
++&i2c1 {
++	status = "okay";
++};
+diff --git a/fdts/s32g274ar5sbc3.dts b/fdts/s32g274ar5sbc3.dts
+new file mode 100644
+index 000000000..1a8d3e464
+--- /dev/null
++++ b/fdts/s32g274ar5sbc3.dts
+@@ -0,0 +1,18 @@
++/*
++ * Copyright (C) 2023 MicroSys Electronics GmbH
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++/dts-v1/;
++
++#include "mpxs32g274ar5.dtsi"
++#include "crxs32gr3.dtsi"
++
++/ {
++	model = "MicroSys S32G274AR5SBC3";
++};
++
++&i2c1 {
++	status = "okay";
++};
+diff --git a/fdts/s32g399ar5sbc2.dts b/fdts/s32g399ar5sbc2.dts
+new file mode 100644
+index 000000000..39427af5f
+--- /dev/null
++++ b/fdts/s32g399ar5sbc2.dts
+@@ -0,0 +1,18 @@
++/*
++ * Copyright (C) 2024 MicroSys Electronics GmbH
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++/dts-v1/;
++
++#include "mpxs32g399ar5.dtsi"
++#include "crxs32gr2.dtsi"
++
++/ {
++	model = "MicroSys S32G399AR5SBC2";
++};
++
++&i2c1 {
++	status = "okay";
++};
+diff --git a/fdts/s32g399ar5sbc3.dts b/fdts/s32g399ar5sbc3.dts
+new file mode 100644
+index 000000000..77a78ff70
+--- /dev/null
++++ b/fdts/s32g399ar5sbc3.dts
+@@ -0,0 +1,18 @@
++/*
++ * Copyright (C) 2024 MicroSys Electronics GmbH
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++/dts-v1/;
++
++#include "mpxs32g399ar5.dtsi"
++#include "crxs32gr3.dtsi"
++
++/ {
++	model = "MicroSys S32G399AR5SBC3";
++};
++
++&i2c1 {
++	status = "okay";
++};
+diff --git a/include/drivers/nxp/s32/ddr/ddr_utils.h b/include/drivers/nxp/s32/ddr/ddr_utils.h
+index 7b450fa67..87759575f 100644
+--- a/include/drivers/nxp/s32/ddr/ddr_utils.h
++++ b/include/drivers/nxp/s32/ddr/ddr_utils.h
+@@ -375,7 +375,7 @@
+ #define REQUIRED_OK_CHECKS 0x3U
+ #endif
+ 
+-#if !defined(PLAT_s32g3)
++#if !(defined(PLAT_s32g3) || defined(PLAT_mpxs32g399ar5))
+ #define OFFSET_DFIPHYMSTR   ((uint32_t)0x1C4U)
+ #define DFIPHYMSTR_ENABLE   0x1U
+ #define DFIPHYMSTR_DISABLED 0x0U
+diff --git a/include/drivers/nxp/s32/pmic/vr5510.h b/include/drivers/nxp/s32/pmic/vr5510.h
+index d88f8256d..a4e4fb04c 100644
+--- a/include/drivers/nxp/s32/pmic/vr5510.h
++++ b/include/drivers/nxp/s32/pmic/vr5510.h
+@@ -29,6 +29,11 @@
+ #define VR5510_CTRL1_TIMER_4096MS	VR5510_CTRL1_TIMER_STBY_WIN(5)
+ 
+ #define VR5510_M_REG_CTRL1	3
++#define VR5510_CTRL1_BUCK1_EN_MASK     (1U << (13-8))
++#define VR5510_CTRL1_BUCK1_DIS_MASK    (1U << (21-8))
++#define VR5510_CTRL1_BUCK2_EN_MASK     (1U << (12-8))
++#define VR5510_CTRL1_BUCK2_DIS_MASK    (1U << (20-8))
++
+ #define VR5510_M_REG_CTRL2	4
+ 
+ #define VR5510_M_REG_CTRL3	5
+@@ -60,6 +65,7 @@
+ #define VR5510_FLAG2_ALL_FLAGS	0xFFFF
+ 
+ #define VR5510_M_FLAG3		14
++#define VR5510_MFLAG3_BUCK2_ST_MASK     (1U << (19-8))
+ #define VR5510_FLAG3_I2C_M_REQ		BIT(0)
+ #define VR5510_FLAG3_I2C_M_CRC		BIT(1)
+ 
+diff --git a/include/dt-bindings/clock/s32gen1-clock-freq.h b/include/dt-bindings/clock/s32gen1-clock-freq.h
+index a4960dd39..65f8f5492 100644
+--- a/include/dt-bindings/clock/s32gen1-clock-freq.h
++++ b/include/dt-bindings/clock/s32gen1-clock-freq.h
+@@ -18,7 +18,9 @@
+ #define S32GEN1_PERIPH_DFS1_FREQ		(800 * MHZ)
+ #define S32GEN1_PERIPH_DFS3_FREQ		(800 * MHZ)
+ 
+-#if defined(PLAT_s32g2)
++#if defined(PLAT_s32g2) \
++	|| defined(CONFIG_TARGET_MPXS32G274AR2) \
++	|| defined(CONFIG_TARGET_MPXS32G274AR5)
+ #define S32GEN1_A53_MAX_FREQ			(1000 * MHZ)
+ #define S32GEN1_A53_MIN_FREQ			(48 * MHZ)
+ #define S32GEN1_ARM_PLL_VCO_MAX_FREQ		(2000 * MHZ)
+@@ -29,7 +31,7 @@
+ #define S32GEN1_XBAR_2X_FREQ			(800 * MHZ)
+ #define S32GEN1_PERIPH_PLL_PHI0_MIN_FREQ	(100 * MHZ)
+ #define S32GEN1_PERIPH_PLL_PHI2_MIN_FREQ	(40 * MHZ)
+-#elif defined(PLAT_s32g3)
++#elif defined(PLAT_s32g3) || defined(PLAT_mpxs32g399ar5)
+ #define S32GEN1_A53_MAX_FREQ			(1300 * MHZ)
+ #define S32GEN1_A53_MIN_FREQ			(48 * MHZ)
+ #define S32GEN1_ARM_PLL_VCO_MAX_FREQ		(2600 * MHZ)
+diff --git a/localversion-microsys b/localversion-microsys
+new file mode 100644
+index 000000000..a6534bb33
+--- /dev/null
++++ b/localversion-microsys
+@@ -0,0 +1 @@
++6.2.5
+diff --git a/plat/nxp/s32/s32_psci.c b/plat/nxp/s32/s32_psci.c
+index 1ea4f9089..d3fbdfd81 100644
+--- a/plat/nxp/s32/s32_psci.c
++++ b/plat/nxp/s32/s32_psci.c
+@@ -9,7 +9,10 @@
+ #include "s32_plat_funcs.h"
+ #include "s32_pmic.h"
+ 
+-#if defined(PLAT_s32g2) || defined(PLAT_s32g3)
++#if defined(PLAT_s32g2) || defined(PLAT_s32g3) \
++	|| defined(CONFIG_TARGET_MPXS32G274AR2) \
++	|| defined(CONFIG_TARGET_MPXS32G274AR5) \
++	|| defined(PLAT_mpxs32g399ar5)
+ #include <lib/mmio.h>
+ #include "s32g_bl_common.h"
+ #include "s32g_mc_me.h"
+@@ -156,8 +159,10 @@ static void s32_pwr_domain_on_finish(const psci_power_state_t *target_state)
+ 		update_core_state(pos, CPUIF_EN, CPUIF_EN);
+ 	}
+ }
+-
+-#if defined(PLAT_s32g2) || defined(PLAT_s32g3)
++#if defined(PLAT_s32g2) || defined(PLAT_s32g3) \
++	|| defined(CONFIG_TARGET_MPXS32G274AR2) \
++	|| defined(CONFIG_TARGET_MPXS32G274AR5) \
++	|| defined(PLAT_mpxs32g399ar5)
+ static void s32g_pwr_domain_suspend_finish(
+ 					const psci_power_state_t *target_state)
+ {
+@@ -277,7 +282,10 @@ const plat_psci_ops_t s32_psci_pm_ops = {
+ 	.pwr_domain_on = s32_pwr_domain_on,
+ 	.pwr_domain_on_finish = s32_pwr_domain_on_finish,
+ 	.pwr_domain_pwr_down_wfi = s32_pwr_domain_pwr_down_wfi,
+-#if defined(PLAT_s32g2) || defined(PLAT_s32g3)
++#if defined(PLAT_s32g2) || defined(PLAT_s32g3) \
++	|| defined(CONFIG_TARGET_MPXS32G274AR2) \
++	|| defined(CONFIG_TARGET_MPXS32G274AR5) \
++	|| defined(PLAT_mpxs32g399ar5)
+ 	/* cap: PSCI_CPU_SUSPEND_AARCH64 */
+ 	.pwr_domain_suspend = s32g_pwr_domain_suspend,
+ 	/* cap: PSCI_SYSTEM_SUSPEND_AARCH64 */
+diff --git a/plat/nxp/s32/s32_scmi_rst.c b/plat/nxp/s32/s32_scmi_rst.c
+index 0179079a5..d2c69ea14 100644
+--- a/plat/nxp/s32/s32_scmi_rst.c
++++ b/plat/nxp/s32/s32_scmi_rst.c
+@@ -8,10 +8,12 @@
+ #ifdef PLAT_s32r
+ #include <dt-bindings/reset/s32r45-scmi-reset.h>
+ #endif
+-#ifdef PLAT_s32g2
++#if defined(PLAT_s32g2) \
++	|| defined(CONFIG_TARGET_MPXS32G274AR2) \
++	|| defined(CONFIG_TARGET_MPXS32G274AR5)
+ #include <dt-bindings/reset/s32g-scmi-reset.h>
+ #endif
+-#ifdef PLAT_s32g3
++#if defined(PLAT_s32g3) || defined(PLAT_mpxs32g399ar5)
+ #include <dt-bindings/reset/s32g3-scmi-reset.h>
+ #endif
+ 
+@@ -42,7 +44,9 @@ static const struct reset_entry reset_table[] = {
+ 	[S32GEN1_SCMI_RST_SERDES0] = PERIPH_RESET(5, "serdes0"),
+ 	[S32GEN1_SCMI_RST_PCIE1] = PERIPH_RESET(16, "pcie1"),
+ 	[S32GEN1_SCMI_RST_SERDES1] = PERIPH_RESET(17, "serdes1"),
+-#ifdef PLAT_s32g2
++#if defined(PLAT_s32g2) \
++		|| defined(CONFIG_TARGET_MPXS32G274AR2) \
++		|| defined(CONFIG_TARGET_MPXS32G274AR5)
+ 	[S32GEN1_SCMI_RST_A53_0] = PERIPH_RESET(65, "a53_0"),
+ 	[S32GEN1_SCMI_RST_A53_1] = PERIPH_RESET(66, "a53_1"),
+ 	[S32GEN1_SCMI_RST_A53_2] = PERIPH_RESET(67, "a53_2"),
+@@ -51,7 +55,7 @@ static const struct reset_entry reset_table[] = {
+ 	[S32G_SCMI_RST_PFE] = PART_RESET(2, "pfe"),
+ 	[S32G_SCMI_RST_LLCE] = PART_RESET(3, "llce"),
+ #endif
+-#ifdef PLAT_s32g3
++#if defined(PLAT_s32g3) || defined(PLAT_mpxs32g399ar5)
+ 	[S32GEN1_SCMI_RST_A53_0] = PERIPH_RESET(65, "a53_0"),
+ 	[S32GEN1_SCMI_RST_A53_1] = PERIPH_RESET(66, "a53_1"),
+ 	[S32GEN1_SCMI_RST_A53_2] = PERIPH_RESET(69, "a53_2"),
+diff --git a/plat/nxp/s32/s32_svc.c b/plat/nxp/s32/s32_svc.c
+index 28931bcf8..f96cde418 100644
+--- a/plat/nxp/s32/s32_svc.c
++++ b/plat/nxp/s32/s32_svc.c
+@@ -53,9 +53,11 @@ const char *plat_scmi_vendor_name(void)
+ 
+ const char *plat_scmi_sub_vendor_name(void)
+ {
+-#if defined(PLAT_s32g2)
++#if defined(PLAT_s32g2) \
++	|| defined(CONFIG_TARGET_MPXS32G274AR2) \
++	|| defined(CONFIG_TARGET_MPXS32G274AR5)
+ 	return "S32G274A";
+-#elif defined(PLAT_s32g3)
++#elif defined(PLAT_s32g3) || defined(PLAT_mpxs32g399ar5)
+ 	return "S32G399A";
+ #else
+ 	return "S32R45";
+diff --git a/plat/nxp/s32/s32g/include/s32g_vr5510.h b/plat/nxp/s32/s32g/include/s32g_vr5510.h
+index eeb5672cd..be12b6d2b 100644
+--- a/plat/nxp/s32/s32g/include/s32g_vr5510.h
++++ b/plat/nxp/s32/s32g/include/s32g_vr5510.h
+@@ -11,5 +11,6 @@
+ #include <s32_pmic.h>
+ 
+ int pmic_disable_wdg(vr5510_t fsu);
++int pmic_buck2_disable(vr5510_t mu);
+ 
+ #endif /* S32G_VR5510_H */
+diff --git a/plat/nxp/s32/s32g/s32g2/mpxs32g274ar2/mpxs32g274ar2.mk b/plat/nxp/s32/s32g/s32g2/mpxs32g274ar2/mpxs32g274ar2.mk
+new file mode 100644
+index 000000000..a46d7ec23
+--- /dev/null
++++ b/plat/nxp/s32/s32g/s32g2/mpxs32g274ar2/mpxs32g274ar2.mk
+@@ -0,0 +1,7 @@
++# Copyright (C) 2021-2022 MicroSys Electronics GmbH
++# Author: Kay Potthoff <kay.potthoff@microsys.de>
++
++PLAT_BL_COMMON_SOURCES +=      ${PLAT_SOC_PATH}/s32g2_vr5510.c
++
++CFLAGS += -DPLAT_mpxs32g274ar2
++CFLAGS += -DCONFIG_TARGET_MPXS32G274AR2
+diff --git a/plat/nxp/s32/s32g/s32g2/mpxs32g274ar5/mpxs32g274ar5.mk b/plat/nxp/s32/s32g/s32g2/mpxs32g274ar5/mpxs32g274ar5.mk
+new file mode 100644
+index 000000000..113bc0eb7
+--- /dev/null
++++ b/plat/nxp/s32/s32g/s32g2/mpxs32g274ar5/mpxs32g274ar5.mk
+@@ -0,0 +1,7 @@
++# Copyright (C) 2023 MicroSys Electronics GmbH
++# Author: Kay Potthoff <kay.potthoff@microsys.de>
++
++PLAT_BL_COMMON_SOURCES +=      ${PLAT_SOC_PATH}/s32g2_vr5510.c
++
++CFLAGS += -DPLAT_mpxs32g274ar5
++CFLAGS += -DCONFIG_TARGET_MPXS32G274AR5
+diff --git a/plat/nxp/s32/s32g/s32g2/s32g274ar2sbc2/include/platform_def.h b/plat/nxp/s32/s32g/s32g2/s32g274ar2sbc2/include/platform_def.h
+new file mode 100644
+index 000000000..8b2b095e0
+--- /dev/null
++++ b/plat/nxp/s32/s32g/s32g2/s32g274ar2sbc2/include/platform_def.h
+@@ -0,0 +1,11 @@
++/*
++ * Copyright 2022 NXP
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++#ifndef PLATFORM_DEF_H
++#define PLATFORM_DEF_H
++
++#include <s32g2_platform_def.h>
++
++#endif /* PLATFORM_DEF_H */
+diff --git a/plat/nxp/s32/s32g/s32g2/s32g274ar2sbc2/platform.mk b/plat/nxp/s32/s32g/s32g2/s32g274ar2sbc2/platform.mk
+new file mode 100644
+index 000000000..b4fcdd4b0
+--- /dev/null
++++ b/plat/nxp/s32/s32g/s32g2/s32g274ar2sbc2/platform.mk
+@@ -0,0 +1,17 @@
++# Copyright (C) 2022 MicroSys Electronics GmbH
++# Author: Kay Potthoff <kay.potthoff@microsys.de>
++
++# First set DTB_FILE_NAME, before including platform:
++DTB_FILE_NAME = s32g274ar2sbc2.dtb
++
++include plat/nxp/s32/s32g/s32g2/s32g2.mk
++
++PLAT_MODULE_PATH = ${PLAT_SOC_PATH}/mpxs32g274ar2
++
++include ${PLAT_MODULE_PATH}/mpxs32g274ar2.mk
++
++S32_BOARD_PATH		:= ${PLAT_SOC_PATH}/s32g274ar2sbc2
++
++PLAT_INCLUDES          += -I${S32_BOARD_PATH}/include
++
++CFLAGS += -DCONFIG_TARGET_S32G274AR2SBC2
+diff --git a/plat/nxp/s32/s32g/s32g2/s32g274ar2sbc3/include/platform_def.h b/plat/nxp/s32/s32g/s32g2/s32g274ar2sbc3/include/platform_def.h
+new file mode 100644
+index 000000000..8b2b095e0
+--- /dev/null
++++ b/plat/nxp/s32/s32g/s32g2/s32g274ar2sbc3/include/platform_def.h
+@@ -0,0 +1,11 @@
++/*
++ * Copyright 2022 NXP
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++#ifndef PLATFORM_DEF_H
++#define PLATFORM_DEF_H
++
++#include <s32g2_platform_def.h>
++
++#endif /* PLATFORM_DEF_H */
+diff --git a/plat/nxp/s32/s32g/s32g2/s32g274ar2sbc3/platform.mk b/plat/nxp/s32/s32g/s32g2/s32g274ar2sbc3/platform.mk
+new file mode 100644
+index 000000000..6de7a9d39
+--- /dev/null
++++ b/plat/nxp/s32/s32g/s32g2/s32g274ar2sbc3/platform.mk
+@@ -0,0 +1,17 @@
++# Copyright (C) 2022 MicroSys Electronics GmbH
++# Author: Kay Potthoff <kay.potthoff@microsys.de>
++
++# First set DTB_FILE_NAME, before including platform:
++DTB_FILE_NAME = s32g274ar2sbc3.dtb
++
++include plat/nxp/s32/s32g/s32g2/s32g2.mk
++
++PLAT_MODULE_PATH = ${PLAT_SOC_PATH}/mpxs32g274ar2
++
++include ${PLAT_MODULE_PATH}/mpxs32g274ar2.mk
++
++S32_BOARD_PATH		:= ${PLAT_SOC_PATH}/s32g274ar2sbc3
++
++PLAT_INCLUDES          += -I${S32_BOARD_PATH}/include
++
++CFLAGS += -DCONFIG_TARGET_S32G274AR2SBC3
+diff --git a/plat/nxp/s32/s32g/s32g2/s32g274ar5sbc3/include/platform_def.h b/plat/nxp/s32/s32g/s32g2/s32g274ar5sbc3/include/platform_def.h
+new file mode 100644
+index 000000000..8b2b095e0
+--- /dev/null
++++ b/plat/nxp/s32/s32g/s32g2/s32g274ar5sbc3/include/platform_def.h
+@@ -0,0 +1,11 @@
++/*
++ * Copyright 2022 NXP
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++#ifndef PLATFORM_DEF_H
++#define PLATFORM_DEF_H
++
++#include <s32g2_platform_def.h>
++
++#endif /* PLATFORM_DEF_H */
+diff --git a/plat/nxp/s32/s32g/s32g2/s32g274ar5sbc3/platform.mk b/plat/nxp/s32/s32g/s32g2/s32g274ar5sbc3/platform.mk
+new file mode 100644
+index 000000000..95db1b623
+--- /dev/null
++++ b/plat/nxp/s32/s32g/s32g2/s32g274ar5sbc3/platform.mk
+@@ -0,0 +1,17 @@
++# Copyright (C) 2023 MicroSys Electronics GmbH
++# Author: Kay Potthoff <kay.potthoff@microsys.de>
++
++# First set DTB_FILE_NAME, before including platform:
++DTB_FILE_NAME = s32g274ar5sbc3.dtb
++
++include plat/nxp/s32/s32g/s32g2/s32g2.mk
++
++PLAT_MODULE_PATH = ${PLAT_SOC_PATH}/mpxs32g274ar5
++
++include ${PLAT_MODULE_PATH}/mpxs32g274ar5.mk
++
++S32_BOARD_PATH		:= ${PLAT_SOC_PATH}/s32g274ar5sbc3
++
++PLAT_INCLUDES          += -I${S32_BOARD_PATH}/include
++
++CFLAGS += -DCONFIG_TARGET_S32G274AR5SBC3
+diff --git a/plat/nxp/s32/s32g/s32g2/s32g2_vr5510.c b/plat/nxp/s32/s32g/s32g2/s32g2_vr5510.c
+index 5a45bcc2b..fc4dd7b24 100644
+--- a/plat/nxp/s32/s32g/s32g2/s32g2_vr5510.c
++++ b/plat/nxp/s32/s32g/s32g2/s32g2_vr5510.c
+@@ -86,5 +86,21 @@ int pmic_setup(void)
+ 	if (ret)
+ 		return ret;
+ 
++#if defined(CONFIG_TARGET_MPXS32G274AR5)
++	{
++		vr5510_t mu;
++
++		ret = vr5510_get_inst(VR5510_MU_NAME, &mu);
++		if (ret) {
++			ERROR("Failed to get VR5510 MU\n");
++			return ret;
++		}
++
++		ret = pmic_buck2_disable(mu);
++		if (ret)
++			return ret;
++	}
++#endif
++
+ 	return pmic_disable_wdg(fsu);
+ }
+diff --git a/plat/nxp/s32/s32g/s32g3/mpxs32g399ar5/mpxs32g399ar5.mk b/plat/nxp/s32/s32g/s32g3/mpxs32g399ar5/mpxs32g399ar5.mk
+new file mode 100644
+index 000000000..d5e15f23c
+--- /dev/null
++++ b/plat/nxp/s32/s32g/s32g3/mpxs32g399ar5/mpxs32g399ar5.mk
+@@ -0,0 +1,5 @@
++# Copyright (C) 2023-2024 MicroSys Electronics GmbH
++# Author: Kay Potthoff <kay.potthoff@microsys.de>
++
++CFLAGS += -DPLAT_mpxs32g399ar5
++CFLAGS += -DCONFIG_TARGET_MPXS32G399AR5
+diff --git a/plat/nxp/s32/s32g/s32g3/s32g399ar5sbc2/include/platform_def.h b/plat/nxp/s32/s32g/s32g3/s32g399ar5sbc2/include/platform_def.h
+new file mode 100644
+index 000000000..1949f1a65
+--- /dev/null
++++ b/plat/nxp/s32/s32g/s32g3/s32g399ar5sbc2/include/platform_def.h
+@@ -0,0 +1,11 @@
++/*
++ * Copyright 2022 NXP
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++#ifndef PLATFORM_DEF_H
++#define PLATFORM_DEF_H
++
++#include <s32g3_platform_def.h>
++
++#endif /* PLATFORM_DEF_H */
+diff --git a/plat/nxp/s32/s32g/s32g3/s32g399ar5sbc2/platform.mk b/plat/nxp/s32/s32g/s32g3/s32g399ar5sbc2/platform.mk
+new file mode 100644
+index 000000000..3df7d9bed
+--- /dev/null
++++ b/plat/nxp/s32/s32g/s32g3/s32g399ar5sbc2/platform.mk
+@@ -0,0 +1,20 @@
++#
++# Copyright 2024 MicroSys Electronics GmbH
++#
++# SPDX-License-Identifier: BSD-3-Clause
++#
++
++# First set DTB_FILE_NAME, before including platform:
++DTB_FILE_NAME = s32g399ar5sbc2.dtb
++
++include plat/nxp/s32/s32g/s32g3/s32g3.mk
++
++PLAT_MODULE_PATH = ${PLAT_SOC_PATH}/mpxs32g399ar5
++
++include ${PLAT_MODULE_PATH}/mpxs32g399ar5.mk
++
++S32_BOARD_PATH		:= ${PLAT_SOC_PATH}/s32g399ar5sbc2
++
++PLAT_INCLUDES          += -I${S32_BOARD_PATH}/include
++
++CFLAGS += -DCONFIG_TARGET_S32G399AR5SBC2
+diff --git a/plat/nxp/s32/s32g/s32g3/s32g399ar5sbc3/include/platform_def.h b/plat/nxp/s32/s32g/s32g3/s32g399ar5sbc3/include/platform_def.h
+new file mode 100644
+index 000000000..1949f1a65
+--- /dev/null
++++ b/plat/nxp/s32/s32g/s32g3/s32g399ar5sbc3/include/platform_def.h
+@@ -0,0 +1,11 @@
++/*
++ * Copyright 2022 NXP
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++#ifndef PLATFORM_DEF_H
++#define PLATFORM_DEF_H
++
++#include <s32g3_platform_def.h>
++
++#endif /* PLATFORM_DEF_H */
+diff --git a/plat/nxp/s32/s32g/s32g3/s32g399ar5sbc3/platform.mk b/plat/nxp/s32/s32g/s32g3/s32g399ar5sbc3/platform.mk
+new file mode 100644
+index 000000000..d3293b563
+--- /dev/null
++++ b/plat/nxp/s32/s32g/s32g3/s32g399ar5sbc3/platform.mk
+@@ -0,0 +1,20 @@
++#
++# Copyright 2024 MicroSys Electronics GmbH
++#
++# SPDX-License-Identifier: BSD-3-Clause
++#
++
++# First set DTB_FILE_NAME, before including platform:
++DTB_FILE_NAME = s32g399ar5sbc3.dtb
++
++include plat/nxp/s32/s32g/s32g3/s32g3.mk
++
++PLAT_MODULE_PATH = ${PLAT_SOC_PATH}/mpxs32g399ar5
++
++include ${PLAT_MODULE_PATH}/mpxs32g399ar5.mk
++
++S32_BOARD_PATH		:= ${PLAT_SOC_PATH}/s32g399ar5sbc3
++
++PLAT_INCLUDES          += -I${S32_BOARD_PATH}/include
++
++CFLAGS += -DCONFIG_TARGET_S32G399AR5SBC3
+diff --git a/plat/nxp/s32/s32g/s32g3/s32g3_vr5510.c b/plat/nxp/s32/s32g/s32g3/s32g3_vr5510.c
+index 59e9a8dc1..2997392f5 100644
+--- a/plat/nxp/s32/s32g/s32g3/s32g3_vr5510.c
++++ b/plat/nxp/s32/s32g/s32g3/s32g3_vr5510.c
+@@ -25,5 +25,19 @@ int pmic_setup(void)
+ 		return ret;
+ 	}
+ 
++	{
++		vr5510_t mu;
++
++		ret = vr5510_get_inst(VR5510_MU_NAME, &mu);
++		if (ret) {
++			ERROR("Failed to get VR5510 MU\n");
++			return ret;
++		}
++
++		ret = pmic_buck2_disable(mu);
++		if (ret)
++			return ret;
++	}
++
+ 	return pmic_disable_wdg(fsu);
+ }
+diff --git a/plat/nxp/s32/s32g/s32g_vr5510.c b/plat/nxp/s32/s32g/s32g_vr5510.c
+index ea8b1dd4c..22d7e3fa4 100644
+--- a/plat/nxp/s32/s32g/s32g_vr5510.c
++++ b/plat/nxp/s32/s32g/s32g_vr5510.c
+@@ -266,3 +266,42 @@ int pmic_disable_wdg(vr5510_t fsu)
+ 
+ 	return watchdog_refresh(fsu);
+ }
++
++__attribute__((optimize(0)))
++int pmic_buck2_disable(vr5510_t mu)
++{
++	int ret = 0;
++	uint16_t data;
++	uint8_t *data8 = (uint8_t *) &data;
++
++	data = ~0;
++	ret = vr5510_write(mu, VR5510_M_FLAG3, data8, sizeof(data));
++	if (ret != 0)
++		return ret;
++
++	ret = vr5510_read(mu, VR5510_M_REG_CTRL1, data8, sizeof(data));
++	if (ret != 0)
++		return ret;
++
++	data |= VR5510_CTRL1_BUCK2_DIS_MASK;
++	data &= ~VR5510_CTRL1_BUCK2_EN_MASK;
++
++	ret = vr5510_write(mu, VR5510_M_REG_CTRL1, data8, sizeof(data));
++	if (ret != 0)
++		return ret;
++
++//	ret = vr5510_read(mu, VR5510_M_FLAG3, data8, sizeof(data));
++//	if (ret != 0)
++//		return ret;
++//
++//	NOTICE("PMIC: FLAG3 = 0x%04x\n", data);
++//
++//	if ((data & VR5510_MFLAG3_BUCK2_ST_MASK) == 0)
++//		NOTICE("PMIC: BUCK2 regulator OFF\n");
++//	else {
++//		ERROR("PMIC: cannot disable BUCK2\n");
++//		ret = -ENXIO;
++//	}
++
++	return ret;
++}
+-- 
+2.45.2
+
