@@ -91,6 +91,8 @@ memory for Jailhouse correctly:
 > :warning: Make sure to **apply** the required
 [patches](jailhouse-enabling-patches/6.1.y/) to support Jailhouse.
 
+> **NOTE**: an already prepared configuration for the kernel is available [here](boards/zcu104/configs).
+
 ### Configure the Kernel
 
 Jailhouse needs the following configuration variable to be enabled:

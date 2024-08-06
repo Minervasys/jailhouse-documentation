@@ -77,6 +77,8 @@ git am /path/to/jailhouse-documentation/jailhouse-enabling-patches/5.15.y/*
 
 4. Configure and build Linux:
 
+> **NOTE**: an already prepared configuration for the kernel is available [here](boards/s32g274/configs).
+
 ```bash
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
 	s32g274ar2sbc2_defconfig

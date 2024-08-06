@@ -40,6 +40,8 @@ This property has been written in `Rock5B` dts: `arch/arm64/boot/dts/rockchip/rk
 
 > :warning: Make sure to **apply** the required patches linked in the [Resources](#resources) section.
 
+> **NOTE**: an already prepared configuration for the kernel is available [here](boards/rock5b/configs).
+
 ### Configure the Kernel
 
 Jailhouse needs the following configuration variable to be **enabled**:
