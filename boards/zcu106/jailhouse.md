@@ -85,9 +85,9 @@ memory for Jailhouse correctly:
 > **NOTE**: this guide relies on PetaLinux for building stuff on the `ZCU106`.
 
 > :warning: Make sure to **apply** the required
-[patches](jailhouse-enabling-patches/6.1.y/) to support Jailhouse.
+[patches](/jailhouse-enabling-patches/6.1.y/) to support Jailhouse.
 
-> **NOTE**: an already prepared configuration for the kernel is available [here](boards/zcu106/configs).
+> **NOTE**: an already prepared configuration for the kernel is available [here](/boards/zcu106/configs).
 
 ### Configure the Kernel
 
@@ -166,7 +166,7 @@ in the board's file system.
 Here you can find an example of Jailhouse with `cache-coloring` and `memguard`:
 
 > NOTE: be sure to enable UART2 prints with this
-[option](boards/zcu106/linux#bonus-enable-output-from-the-uart2).
+[option](/boards/zcu106/linux.md#bonus-enable-output-from-the-uart2).
 
 ```bash
 getty 115200 ttyPS1 &

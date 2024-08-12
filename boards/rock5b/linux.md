@@ -25,7 +25,7 @@ After this, you will end up with a bootable SD card to insert into the board and
 
 As for any standard ARM board, the boot flow is the following:
 
-![boot-flow](boards/assets/bootflow.png)
+![boot-flow](/boards/assets/bootflow.png)
 
 ### Login into the system
 
@@ -127,4 +127,4 @@ booti 0x2200000 - 0xa100000
 
 ## Jailhouse on the `Rock5B`
 
-See the [dedicated page](boards/rock5b/jailhouse.md) to understand how to build and enable Jailhouse.
+See the [dedicated page](/boards/rock5b/jailhouse.md) to understand how to build and enable Jailhouse.

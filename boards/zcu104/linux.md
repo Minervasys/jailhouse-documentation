@@ -183,4 +183,4 @@ fatload mmc 0 0x2A00000 <custom-system.dtb> && fatload mmc 0 0x3000000 <custom-I
 
 ## Jailhouse on the `ZCU104`
 
-See the [dedicated page](boards/zcu104/jailhouse.md) to understand how to build and enable **Jailhouse**.
+See the [dedicated page](/boards/zcu104/jailhouse.md) to understand how to build and enable **Jailhouse**.

@@ -22,7 +22,7 @@ In particular, we have:
 ```
 
 The entire memory map can be seen in the `S32G2_Memory_Map` Excel file attached to the
-`S32G2 Reference Manual` (listed in the [Resources](boards/s32g274/linux.md#resources) section).
+`S32G2 Reference Manual` (listed in the [Resources](/boards/s32g274/linux.md#resources) section).
 
 The memory reserved for the `root cell` and the `inmates` is the following:
 
@@ -61,14 +61,14 @@ git clone https://github.com/nxp-auto-linux/linux.git
 git switch release/bsp36.0-5.15.85-rt
 ```
 
-2. Apply Microsys patches available in the [patches](boards/s32g274/patches/) directory:
+2. Apply Microsys patches available in the [patches](/boards/s32g274/patches/) directory:
 
 ```bash
 cd /path/to/nxp-linux
 git am /path/to/jailhouse-documentation/boards/s32g274/patches/linux/*
 ```
 
-3. Apply Jailhouse enabling patches for `5.15.y` available [here](jailhouse-enabling-patches/5.15.y/):
+3. Apply Jailhouse enabling patches for `5.15.y` available [here](/jailhouse-enabling-patches/5.15.y/):
 
 ```bash
 cd /path/to/nxp-linux
@@ -77,7 +77,7 @@ git am /path/to/jailhouse-documentation/jailhouse-enabling-patches/5.15.y/*
 
 4. Configure and build Linux:
 
-> **NOTE**: an already prepared configuration for the kernel is available [here](boards/s32g274/configs).
+> **NOTE**: an already prepared configuration for the kernel is available [here](/boards/s32g274/configs).
 
 ```bash
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
@@ -110,7 +110,7 @@ git clone https://github.com/nxp-auto-linux/u-boot
 git switch release/bsp36.0-2020.04
 ```
 
-2. Apply Microsys patches available in the [patches](boards/s32g274/patches/) directory:
+2. Apply Microsys patches available in the [patches](/boards/s32g274/patches/) directory:
 
 ```bash
 cd /path/to/nxp-u-boot
@@ -136,7 +136,7 @@ git clone https://github.com/nxp-auto-linux/arm-trusted-firmware.git
 git switch release/bsp36.0-2.5
 ```
 
-2. Apply Microsys patches available in the [patches](boards/s32g274/patches/) directory:
+2. Apply Microsys patches available in the [patches](/boards/s32g274/patches/) directory:
 
 ```bash
 cd /path/to/nxp-atf

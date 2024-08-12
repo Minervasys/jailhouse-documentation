@@ -56,7 +56,7 @@ sudo dd if=microsys-image-auto-s32g274ar2sbc2-20240524103805.rootfs.sdcard of=/d
 
 The standard boot flow for the `s32g274` is showed in the following diagram:
 
-![boot-flow](boards/assets/bootflow.png)
+![boot-flow](/boards/assets/bootflow.png)
 
 The boot flow can be customized in several ways, for example:
 
@@ -99,10 +99,10 @@ bootm start ${loadaddr}${kconfig}; bootm loados; bootm ramdisk; bootm fdt; bootm
 ## Building Linux
 
 Linux can be built both manually (documented in the
-[Jailhouse guide](boards/s32g274/jailhouse.md#building-linux-manually)) and through Yocto.
+[Jailhouse guide](/boards/s32g274/jailhouse.md#building-linux-manually)) and through Yocto.
 All the steps to build Linux with Yocto are documented in the BSP 36.0 User Manual in
 section `3.1.8 Additional instructions for developers`.
 
 ## Jailhouse on the `s32g274`
 
-See the [dedicated page](boards/s32g274/jailhouse.md) to understand how to build and enable Jailhouse.
+See the [dedicated page](/boards/s32g274/jailhouse.md) to understand how to build and enable Jailhouse.

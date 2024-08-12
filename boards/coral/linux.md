@@ -1,4 +1,4 @@
-# Linux on the `Coral`
+# Linux on the `Coral` -- :construction: WORK IN PROGRESS
 
 ## Quick info
 
@@ -22,7 +22,7 @@ with Mendel Linux running on the on-chip memory of the `Coral`.
 
 The diagram below shows the standard boot flow for the `Coral`:
 
-![boot-flow](boards/assets/bootflow.png)
+![boot-flow](/boards/assets/bootflow.png)
 
 **u-boot** starts with a
 [custom script](https://coral.googlesource.com/uboot-imx-debian/+/refs/heads/master/debian/boot.txt)
@@ -84,4 +84,4 @@ sudo date -s 'yyyy-mm-dd hh:mm:ss'
 
 ## Jailhouse support
 
-See the [dedicated page](boards/coral/jailhouse.md) to understand how to enable **Jailhouse** on the `Coral`.
+See the [dedicated page](/boards/coral/jailhouse.md) to understand how to enable **Jailhouse** on the `Coral`.
