@@ -1,0 +1,236 @@
+From 73d53f34035545aafc2c27e9895d901e9d388e85 Mon Sep 17 00:00:00 2001
+From: Andrea Bastoni <andrea.bastoni@tum.de>
+Date: Sun, 21 Feb 2021 19:39:45 +0100
+Subject: [PATCH 2/2] s32v234sbc: jailhouse support: integrate PSCI emulation
+ in hybrid spin table
+
+Extend the spin-table support with a jailhouse-triggered hook to emulate
+psci CPU_OFF / CPU_ON and dynamically add/remove CPUs from the root
+cell.
+
+This wip branch matches the jailhouse implementation in wip/s32v234sbc.
+
+The config knob HOTPLUG_CPU_PSCI_EMULATION introduced by this patch
+protects not only the implementation in this commit, but also the
+implementation in the Jailhouse driver.
+---
+ arch/arm64/Kconfig.platforms       |  3 +
+ arch/arm64/include/asm/cpu_ops.h   |  5 ++
+ arch/arm64/kernel/smp_spin_table.c | 95 +++++++++++++++++++++++++++++-
+ drivers/firmware/psci/Kconfig      |  4 ++
+ drivers/firmware/psci/psci.c       | 19 ++++++
+ include/linux/psci.h               |  5 ++
+ 6 files changed, 130 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm64/Kconfig.platforms b/arch/arm64/Kconfig.platforms
+index 2581c128f497..2fcf51085d20 100644
+--- a/arch/arm64/Kconfig.platforms
++++ b/arch/arm64/Kconfig.platforms
+@@ -23,6 +23,9 @@ config ARCH_S32
+ 	bool "Freescale S32 family"
+ 	select PINCTRL
+ 	select ARCH_S32_CLK
++	select HOTPLUG_CPU
++	select HOTPLUG_CPU_PSCI_EMULATION
++
+ 	help
+ 	  Support for Freescale S32 family of processors.
+ 
+diff --git a/arch/arm64/include/asm/cpu_ops.h b/arch/arm64/include/asm/cpu_ops.h
+index 86aabf1e0199..4d4794ca8453 100644
+--- a/arch/arm64/include/asm/cpu_ops.h
++++ b/arch/arm64/include/asm/cpu_ops.h
+@@ -58,6 +58,11 @@ struct cpu_operations {
+ extern const struct cpu_operations *cpu_ops[NR_CPUS];
+ int __init cpu_read_ops(int cpu);
+ 
++#ifdef CONFIG_HOTPLUG_CPU_PSCI_EMULATION
++extern void jh_spin_psci_cpu_enable_ops(void);
++extern void jh_spin_psci_cpu_disable_ops(void);
++#endif
++
+ static inline void __init cpu_read_bootcpu_ops(void)
+ {
+ 	cpu_read_ops(0);
+diff --git a/arch/arm64/kernel/smp_spin_table.c b/arch/arm64/kernel/smp_spin_table.c
+index 1b02e669a80e..922fdbfd9d6c 100644
+--- a/arch/arm64/kernel/smp_spin_table.c
++++ b/arch/arm64/kernel/smp_spin_table.c
+@@ -27,6 +27,16 @@ static u64 gpr_size = 0;
+ 
+ #endif
+ 
++#ifdef CONFIG_HOTPLUG_CPU_PSCI_EMULATION
++#include <linux/psci.h>
++#include <uapi/linux/psci.h>
++
++static bool jh_enabled = false;
++
++/* Emulate PSCI boot of a CPU after loading Jailhouse */
++static int __jh_spin_psci_post_boot(unsigned int cpu);
++#endif
++
+ extern void secondary_holding_pen(void);
+ volatile unsigned long __section(.mmuoff.data.read)
+ secondary_holding_pen_release = INVALID_HWID;
+@@ -167,7 +177,7 @@ static int smp_spin_table_cpu_prepare(unsigned int cpu)
+ 	return 0;
+ }
+ 
+-static int smp_spin_table_cpu_boot(unsigned int cpu)
++static int __smp_spin_table_cpu_boot(unsigned int cpu)
+ {
+ 	/*
+ 	 * Update the pen release flag.
+@@ -182,9 +192,92 @@ static int smp_spin_table_cpu_boot(unsigned int cpu)
+ 	return 0;
+ }
+ 
++static int smp_spin_table_cpu_boot(unsigned int cpu)
++{
++#ifdef CONFIG_HOTPLUG_CPU_PSCI_EMULATION
++	if (unlikely(jh_enabled))
++		return __jh_spin_psci_post_boot(cpu);
++#endif
++	return __smp_spin_table_cpu_boot(cpu);
++}
++
++#ifdef CONFIG_HOTPLUG_CPU_PSCI_EMULATION
++
++#include <linux/arm-smccc.h>
++/* Emulate PSCI boot of a CPU after loading Jailhouse */
++static int __jh_spin_psci_post_boot(unsigned int cpu)
++{
++	int err = psci_ops.cpu_on(cpu_logical_map(cpu), __pa_symbol(secondary_entry));
++	if (err)
++		pr_err("failed to boot CPU%d (%d)\n", cpu, err);
++
++	return err;
++}
++
++/* Emulate PSCI shutdown of a CPU after loading Jailhouse */
++static void __jh_spin_psci_cpu_die(unsigned int cpu)
++{
++	int ret;
++	/*
++	 * There are no known implementations of PSCI actually using the
++	 * power state field, pass a sensible default for now.
++	 */
++	u32 state = PSCI_POWER_STATE_TYPE_POWER_DOWN <<
++		    PSCI_0_2_POWER_STATE_TYPE_SHIFT;
++
++	ret = psci_ops.cpu_off(state);
++
++	pr_crit("unable to power off CPU%u (%d)\n", cpu, ret);
++}
++
++static void jh_spin_psci_cpu_die(unsigned int cpu)
++{
++	if (jh_enabled) {
++		__jh_spin_psci_cpu_die(cpu);
++		return;
++	}
++}
++
++/* Just stub the following functions, which should not be
++ * called by Jailhouse to bring down a CPU.
++ */
++static int jh_spin_psci_cpu_disable(unsigned int cpu)
++{
++	return 0;
++}
++
++static int jh_spin_psci_cpu_kill(unsigned int cpu)
++{
++	return 0;
++}
++
++void jh_spin_psci_cpu_enable_ops(void)
++{
++	psci_emulation_enable(PSCI_CONDUIT_SMC);
++	jh_enabled = true;
++
++	pr_info("Enabled PSCI CPU Emulation\n");
++}
++
++void jh_spin_psci_cpu_disable_ops(void)
++{
++	psci_emulation_disable();
++	jh_enabled = false;
++
++	pr_info("Disabled PSCI CPU Emulation\n");
++}
++EXPORT_SYMBOL(jh_spin_psci_cpu_enable_ops);
++EXPORT_SYMBOL(jh_spin_psci_cpu_disable_ops);
++#endif /* CONFIG_HOTPLUG_CPU_PSCI_EMULATION */
++
+ const struct cpu_operations smp_spin_table_ops = {
+ 	.name		= "spin-table",
+ 	.cpu_init	= smp_spin_table_cpu_init,
+ 	.cpu_prepare	= smp_spin_table_cpu_prepare,
+ 	.cpu_boot	= smp_spin_table_cpu_boot,
++#ifdef CONFIG_HOTPLUG_CPU_PSCI_EMULATION
++	.cpu_disable	= jh_spin_psci_cpu_disable,
++	.cpu_die	= jh_spin_psci_cpu_die,
++	.cpu_kill	= jh_spin_psci_cpu_kill,
++#endif
+ };
+diff --git a/drivers/firmware/psci/Kconfig b/drivers/firmware/psci/Kconfig
+index 97944168b5e6..c3b91760bbf8 100644
+--- a/drivers/firmware/psci/Kconfig
++++ b/drivers/firmware/psci/Kconfig
+@@ -12,3 +12,7 @@ config ARM_PSCI_CHECKER
+ 	  The torture tests may interfere with the PSCI checker by turning CPUs
+ 	  on and off through hotplug, so for now torture tests and PSCI checker
+ 	  are mutually exclusive.
++
++# Enable PSCI Emulation when integrated into Jailhouse
++config HOTPLUG_CPU_PSCI_EMULATION
++	bool
+diff --git a/drivers/firmware/psci/psci.c b/drivers/firmware/psci/psci.c
+index 84f4ff351c62..66d83c493e01 100644
+--- a/drivers/firmware/psci/psci.c
++++ b/drivers/firmware/psci/psci.c
+@@ -542,6 +542,25 @@ static int __init psci_1_0_init(struct device_node *np)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_HOTPLUG_CPU_PSCI_EMULATION
++void psci_emulation_enable(enum psci_conduit conduit)
++{
++	set_conduit(conduit);
++
++	psci_function_id[PSCI_FN_CPU_OFF] = PSCI_0_2_FN_CPU_OFF;
++	psci_ops.cpu_off = psci_cpu_off;
++
++	psci_function_id[PSCI_FN_CPU_ON] = PSCI_FN_NATIVE(0_2, CPU_ON);
++	psci_ops.cpu_on = psci_cpu_on;
++}
++
++void psci_emulation_disable(void)
++{
++	psci_ops.cpu_off = NULL;
++	psci_ops.cpu_on = NULL;
++}
++#endif
++
+ static const struct of_device_id psci_of_match[] __initconst = {
+ 	{ .compatible = "arm,psci",	.data = psci_0_1_init},
+ 	{ .compatible = "arm,psci-0.2",	.data = psci_0_2_init},
+diff --git a/include/linux/psci.h b/include/linux/psci.h
+index e2bacc6fd2f2..d8fd8fe1565f 100644
+--- a/include/linux/psci.h
++++ b/include/linux/psci.h
+@@ -60,4 +60,9 @@ static inline bool acpi_psci_present(void) { return false; }
+ static inline bool acpi_psci_use_hvc(void) {return false; }
+ #endif
+ 
++#ifdef CONFIG_HOTPLUG_CPU_PSCI_EMULATION
++void psci_emulation_enable(enum psci_conduit conduit);
++void psci_emulation_disable(void);
++#endif
++
+ #endif /* __LINUX_PSCI_H */
+-- 
+2.39.2
+

@@ -1,0 +1,25 @@
+From e1e9e2918737026bf46a66f9e79068d196666e42 Mon Sep 17 00:00:00 2001
+From: Andrea Bastoni <andrea.bastoni@tum.de>
+Date: Sun, 31 Jan 2021 23:53:16 +0100
+Subject: [PATCH 1/4] Don't switch to EL1 if we have JH support
+
+---
+ include/configs/s32.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/configs/s32.h b/include/configs/s32.h
+index b97b3c9bd8..d259e80d16 100644
+--- a/include/configs/s32.h
++++ b/include/configs/s32.h
+@@ -77,7 +77,7 @@
+ #define CPU_RELEASE_ADDR		SECONDARY_CPU_BOOT_PAGE
+ #define CONFIG_FSL_SMP_RELEASE_ALL
+ #ifndef CONFIG_XEN_SUPPORT
+-#define CONFIG_ARMV8_SWITCH_TO_EL1
++/* #define CONFIG_ARMV8_SWITCH_TO_EL1 */
+ #endif
+ 
+ /* SMP Spin Table Definitions */
+-- 
+2.39.2
+
