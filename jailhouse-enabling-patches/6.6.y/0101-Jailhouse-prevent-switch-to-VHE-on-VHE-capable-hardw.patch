@@ -1,0 +1,29 @@
+From f85e7f95ed186b76df47fbcebe6a89be595b59cf Mon Sep 17 00:00:00 2001
+From: Alex Zuepke <alex.zuepke@minervasys.tech>
+Date: Tue, 20 Aug 2024 09:26:43 +0200
+Subject: [PATCH] Jailhouse: prevent switch to VHE on VHE-capable hardware
+
+On VHE-capable hardware, stay in EL1 and allow Jailhouse to load later
+
+Signed-off-by: Alex Zuepke <alex.zuepke@minervasys.tech>
+---
+ arch/arm64/kernel/hyp-stub.S | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/arm64/kernel/hyp-stub.S b/arch/arm64/kernel/hyp-stub.S
+index 47d117fd1..0baa9be3b 100644
+--- a/arch/arm64/kernel/hyp-stub.S
++++ b/arch/arm64/kernel/hyp-stub.S
+@@ -297,6 +297,9 @@ SYM_FUNC_START(finalise_el2)
+ 	cmp	w0, #BOOT_CPU_MODE_EL2
+ 	b.ne	1f
+ 
++	// disable VHE and stay in EL1 to allow Jailhouse to load
++	ret
++
+ 	// and still be at EL1
+ 	mrs	x0, CurrentEL
+ 	cmp	x0, #CurrentEL_EL1
+-- 
+2.34.1
+

@@ -1,0 +1,28 @@
+From baa8900274ed3dbaebc16530875deb5316ec5312 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Thu, 23 Nov 2017 07:12:57 +0100
+Subject: [PATCH 15/44] x86: Export lapic_timer_period
+
+Required for the Jailhouse driver in order to forward the calibration
+value to other cells.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ arch/x86/kernel/apic/apic.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index 06d5a7eee..2fd1d055d 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -196,6 +196,7 @@ static struct resource lapic_resource = {
+ };
+ 
+ unsigned int lapic_timer_period = 0;
++EXPORT_SYMBOL_GPL(lapic_timer_period);
+ 
+ static void apic_pm_activate(void);
+ 
+-- 
+2.34.1
+
