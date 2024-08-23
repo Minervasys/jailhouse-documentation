@@ -1,0 +1,36 @@
+From 321fcf8a2ea563c81d421e2812e14ac76f9f4e78 Mon Sep 17 00:00:00 2001
+From: Alex Zuepke <alex.zuepke@minervasys.tech>
+Date: Fri, 23 Aug 2024 16:33:05 +0200
+Subject: [PATCH] Jailhouse: reserved memory region on YY3568 / RK3568
+ EVB1 V10
+
+Signed-off-by: Alex Zuepke <alex.zuepke@minervasys.tech>
+---
+ arch/arm64/boot/dts/rockchip/rk3568-evb1-v10.dts | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/rockchip/rk3568-evb1-v10.dts b/arch/arm64/boot/dts/rockchip/rk3568-evb1-v10.dts
+index 4fc8354e0..9df57c3a8 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3568-evb1-v10.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3568-evb1-v10.dts
+@@ -158,6 +158,17 @@ regulator-state-mem {
+ 			regulator-off-in-suspend;
+ 		};
+ 	};
++
++	reserved-memory {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++
++		jailhouse@a800000  {
++			no-map;
++			reg = <0x0 0x0a800000 0x0 0x05800000>;
++		};
++	};
+ };
+ 
+ &combphy0 {
+-- 
+2.34.1
+
