@@ -1,0 +1,30 @@
+From 3ec054bb61352e643c79a37a6a87dc4fe005f252 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Sun, 1 Jan 2017 15:54:55 +0100
+Subject: [PATCH 25/43] ivshmem-net: Fix stuck state machine during setup
+
+If the remote side is already in INIT state (or even higher) and has a
+cached rstate of RESET, we won't make progress when signaling RESET
+again because the remote side won't send a state update. Fix this by
+enforcing a local check after probe completion.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ drivers/net/ivshmem-net.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/net/ivshmem-net.c b/drivers/net/ivshmem-net.c
+index 23219349c..e9244c059 100644
+--- a/drivers/net/ivshmem-net.c
++++ b/drivers/net/ivshmem-net.c
+@@ -912,6 +912,7 @@ static int ivshm_net_probe(struct pci_dev *pdev,
+ 		writel(IVSHMEM_INTX_ENABLE, &in->ivshm_regs->intxctrl);
+ 
+ 	writel(IVSHM_NET_STATE_RESET, &in->ivshm_regs->lstate);
++	ivshm_net_check_state(ndev);
+ 
+ 	return 0;
+ 
+-- 
+2.34.1
+

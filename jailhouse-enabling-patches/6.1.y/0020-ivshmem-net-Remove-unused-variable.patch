@@ -1,0 +1,28 @@
+From bfa55402008c627d7cc81d06a554789af4d7c66e Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Fri, 25 Nov 2016 17:31:51 +0100
+Subject: [PATCH 20/43] ivshmem-net: Remove unused variable
+
+Became unused by previous change.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ drivers/net/ivshmem-net.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/net/ivshmem-net.c b/drivers/net/ivshmem-net.c
+index 20b958609..e84aaac43 100644
+--- a/drivers/net/ivshmem-net.c
++++ b/drivers/net/ivshmem-net.c
+@@ -625,8 +625,6 @@ static irqreturn_t ivshm_net_int(int irq, void *data)
+ 
+ static int ivshm_net_open(struct net_device *ndev)
+ {
+-	struct ivshm_net *in = netdev_priv(ndev);
+-
+ 	netdev_reset_queue(ndev);
+ 	ndev->operstate = IF_OPER_UP;
+ 	ivshm_net_run(ndev);
+-- 
+2.34.1
+

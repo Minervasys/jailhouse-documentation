@@ -1,0 +1,53 @@
+From 1c6d8dae719316588922545cca2a4cd6aa2b34a0 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Mon, 9 Mar 2020 09:28:46 +0100
+Subject: [PATCH 39/43] ivshmem-net: Simplify interface of ivshm_net_tx_ok
+
+Just pass in the net_device, and the function and can retrieve the mtu
+itself.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ drivers/net/ivshmem-net.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/ivshmem-net.c b/drivers/net/ivshmem-net.c
+index 4f2cd6158..e27ae5067 100644
+--- a/drivers/net/ivshmem-net.c
++++ b/drivers/net/ivshmem-net.c
+@@ -274,10 +274,12 @@ static size_t ivshm_net_tx_space(struct ivshm_net *in)
+ 	return space;
+ }
+ 
+-static bool ivshm_net_tx_ok(struct ivshm_net *in, unsigned int mtu)
++static bool ivshm_net_tx_ok(struct net_device *ndev)
+ {
++	struct ivshm_net *in = netdev_priv(ndev);
++
+ 	return in->tx.num_free >= 2 &&
+-		ivshm_net_tx_space(in) >= 2 * IVSHM_NET_FRAME_SIZE(mtu);
++		ivshm_net_tx_space(in) >= 2 * IVSHM_NET_FRAME_SIZE(ndev->mtu);
+ }
+ 
+ static u32 ivshm_net_tx_advance(struct ivshm_net_queue *q, u32 *pos, u32 len)
+@@ -502,7 +504,7 @@ static int ivshm_net_poll(struct napi_struct *napi, int budget)
+ 	in->stats.rx_packets += received;
+ 	in->stats.napi_poll_n[received ? 1 + min(ilog2(received), 8) : 0]++;
+ 
+-	if (ivshm_net_tx_ok(in, ndev->mtu))
++	if (ivshm_net_tx_ok(ndev))
+ 		netif_wake_queue(ndev);
+ 
+ 	return received;
+@@ -515,7 +517,7 @@ static netdev_tx_t ivshm_net_xmit(struct sk_buff *skb, struct net_device *ndev)
+ 
+ 	ivshm_net_tx_clean(ndev);
+ 
+-	if (!ivshm_net_tx_ok(in, ndev->mtu)) {
++	if (!ivshm_net_tx_ok(ndev)) {
+ 		ivshm_net_enable_tx_irq(in);
+ 		netif_stop_queue(ndev);
+ 		xmit_more = false;
+-- 
+2.34.1
+

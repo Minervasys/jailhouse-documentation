@@ -1,0 +1,31 @@
+From 59d76dae2c2b58f5ba444961aa0b7713347c7cef Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Mon, 17 Sep 2018 08:08:08 +0200
+Subject: [PATCH 15/43] arm64: dts: marvell: armada-37xx: Set pci-domain
+
+This is a nop for normal operation but allows the device tree overlay
+that the Jailhouse hypervisor injects to use pci-domain as well
+(linux,pci-domain has to be applied consistently in a system). That will
+assign a stable PCI domain to the secondary, virtual host controller of
+Jailhouse.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ arch/arm64/boot/dts/marvell/armada-37xx.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
+index cd28e1c45..43318b9cf 100644
+--- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
+@@ -497,6 +497,7 @@ pcie0: pcie@d0070000 {
+ 			#address-cells = <3>;
+ 			#size-cells = <2>;
+ 			bus-range = <0x00 0xff>;
++			linux,pci-domain = <0>;
+ 			interrupts = <GIC_SPI 29 IRQ_TYPE_LEVEL_HIGH>;
+ 			#interrupt-cells = <1>;
+ 			clocks = <&sb_periph_clk 13>;
+-- 
+2.34.1
+

@@ -1,0 +1,78 @@
+From df462e65d52b38111db61df45409fbbbe810544a Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Mon, 23 Nov 2020 07:27:28 +0100
+Subject: [PATCH 42/43] ivshmem-net: Fix and rework carrier management
+
+The carrier of our virtual link is supposed to go on only when both
+sides are in RUN state. So far, it only went on when one side entered
+RUN by being int READY before and not when RUN was reached via
+ivshm_net_open().
+
+Fix this by moving the carrier management into ivshm_net_run and
+ivshm_net_do_stop, respectively. Make sure that netif_carrier_on is only
+called when the peer in in RUN state already.
+
+Reported-by: Jiafei Pan <Jiafei.Pan@nxp.com>
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ drivers/net/ivshmem-net.c | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/net/ivshmem-net.c b/drivers/net/ivshmem-net.c
+index 77e90f466..9406b4dcc 100644
+--- a/drivers/net/ivshmem-net.c
++++ b/drivers/net/ivshmem-net.c
+@@ -550,6 +550,9 @@ static void ivshm_net_run(struct net_device *ndev)
+ 	if (!netif_running(ndev))
+ 		return;
+ 
++	if (in->last_peer_state == IVSHM_NET_STATE_RUN)
++		netif_carrier_on(ndev);
++
+ 	if (test_and_set_bit(IVSHM_NET_FLAG_RUN, &in->flags))
+ 		return;
+ 
+@@ -568,6 +571,7 @@ static void ivshm_net_do_stop(struct net_device *ndev)
+ 	if (!test_and_clear_bit(IVSHM_NET_FLAG_RUN, &in->flags))
+ 		return;
+ 
++	netif_carrier_off(ndev);
+ 	netif_stop_queue(ndev);
+ 	napi_disable(&in->napi);
+ }
+@@ -617,22 +621,18 @@ static void ivshm_net_state_change(struct work_struct *work)
+ 		break;
+ 
+ 	case IVSHM_NET_STATE_READY:
+-		/*
+-		 * Link is up and we are running once the remote is in READY or
+-		 * RUN.
+-		 */
++	case IVSHM_NET_STATE_RUN:
+ 		if (peer_state >= IVSHM_NET_STATE_READY) {
+-			netif_carrier_on(ndev);
++			/*
++			 * Link is up and we are running once the remote is in
++			 * READY or RUN.
++			 */
+ 			ivshm_net_run(ndev);
+-			break;
+-		}
+-		/* fall through */
+-	case IVSHM_NET_STATE_RUN:
+-		/*
+-		 * If the remote goes to RESET, we need to follow immediately.
+-		 */
+-		if (peer_state == IVSHM_NET_STATE_RESET) {
+-			netif_carrier_off(ndev);
++		} else if (peer_state == IVSHM_NET_STATE_RESET) {
++			/*
++			 * If the remote goes to RESET, we need to follow
++			 * immediately.
++			 */
+ 			ivshm_net_do_stop(ndev);
+ 		}
+ 		break;
+-- 
+2.34.1
+

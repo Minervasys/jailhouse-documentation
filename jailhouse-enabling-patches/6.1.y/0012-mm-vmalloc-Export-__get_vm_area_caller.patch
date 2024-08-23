@@ -1,7 +1,7 @@
-From d277fab44d5a6d5418500ccd41239cdd5bd303c6 Mon Sep 17 00:00:00 2001
+From e05aae8b50ca6e28d5db2127c3b47e77d0025b4b Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sun, 6 Sep 2020 17:30:55 +0200
-Subject: [PATCH 3/6] mm: vmalloc: Export __get_vm_area_caller
+Subject: [PATCH 12/43] mm: vmalloc: Export __get_vm_area_caller
 
 Needed by Jailhouse so far, as replacement of __get_vm_area. Should be
 solved there eventually (via removal of JAILHOUSE_BORROW_ROOT_PT), then
@@ -13,7 +13,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index 14d8c8033e06..443a613395eb 100644
+index 4f9d1ad1d..55c759ef6 100644
 --- a/mm/vmalloc.c
 +++ b/mm/vmalloc.c
 @@ -2533,6 +2533,7 @@ struct vm_struct *__get_vm_area_caller(unsigned long size, unsigned long flags,
@@ -25,5 +25,5 @@ index 14d8c8033e06..443a613395eb 100644
  /**
   * get_vm_area - reserve a contiguous kernel virtual area
 -- 
-2.45.2
+2.34.1
 

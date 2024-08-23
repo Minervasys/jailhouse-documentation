@@ -1,0 +1,41 @@
+From 6ecc5a77f490176925fa2a5dd3ad9b2bbff688a0 Mon Sep 17 00:00:00 2001
+From: Henning Schild <henning.schild@siemens.com>
+Date: Wed, 27 Sep 2017 12:59:49 +0200
+Subject: [PATCH 31/43] ivshmem-net: add MAC changing interface
+
+Allow ifconfig, ip and other such tools to change the MAC of the
+virtual NIC.
+
+Signed-off-by: Henning Schild <henning.schild@siemens.com>
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ drivers/net/ivshmem-net.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/net/ivshmem-net.c b/drivers/net/ivshmem-net.c
+index c12532570..04a6bd62a 100644
+--- a/drivers/net/ivshmem-net.c
++++ b/drivers/net/ivshmem-net.c
+@@ -686,12 +686,14 @@ static void ivshm_net_poll_controller(struct net_device *ndev)
+ #endif
+ 
+ static const struct net_device_ops ivshm_net_ops = {
+-	.ndo_open	= ivshm_net_open,
+-	.ndo_stop	= ivshm_net_stop,
+-	.ndo_start_xmit	= ivshm_net_xmit,
+-	.ndo_change_mtu	= ivshm_net_change_mtu,
++	.ndo_open		= ivshm_net_open,
++	.ndo_stop		= ivshm_net_stop,
++	.ndo_start_xmit		= ivshm_net_xmit,
++	.ndo_change_mtu		= ivshm_net_change_mtu,
++	.ndo_set_mac_address 	= eth_mac_addr,
++	.ndo_validate_addr	= eth_validate_addr,
+ #ifdef CONFIG_NET_POLL_CONTROLLER
+-	.ndo_poll_controller = ivshm_net_poll_controller,
++	.ndo_poll_controller	= ivshm_net_poll_controller,
+ #endif
+ };
+ 
+-- 
+2.34.1
+

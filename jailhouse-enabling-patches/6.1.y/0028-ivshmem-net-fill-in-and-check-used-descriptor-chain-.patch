@@ -1,0 +1,70 @@
+From 0853e3e163850546ea2244c3121d226d76e7450d Mon Sep 17 00:00:00 2001
+From: Henning Schild <henning.schild@siemens.com>
+Date: Mon, 18 Sep 2017 18:02:08 +0200
+Subject: [PATCH 28/43] ivshmem-net: fill in and check used descriptor chain
+ len
+
+We are using chains of len==1 make that explicit and expect that from
+the remote.
+
+Signed-off-by: Henning Schild <henning.schild@siemens.com>
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ drivers/net/ivshmem-net.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/net/ivshmem-net.c b/drivers/net/ivshmem-net.c
+index d2e57870a..a033b8fc4 100644
+--- a/drivers/net/ivshmem-net.c
++++ b/drivers/net/ivshmem-net.c
+@@ -336,10 +336,10 @@ static void ivshm_net_tx_clean(struct net_device *ndev)
+ {
+ 	struct ivshm_net *in = netdev_priv(ndev);
+ 	struct ivshm_net_queue *tx = &in->tx;
++	struct vring_used_elem *used;
+ 	struct vring *vr = &tx->vr;
+ 	struct vring_desc *desc;
+ 	struct vring_desc *fdesc;
+-	unsigned int used;
+ 	unsigned int num;
+ 	u16 used_idx;
+ 	u16 last;
+@@ -359,13 +359,14 @@ static void ivshm_net_tx_clean(struct net_device *ndev)
+ 		u32 len;
+ 		u32 tail;
+ 
+-		used = vr->used->ring[last & (vr->num - 1)].id;
+-		if (used >= vr->num) {
+-			netdev_err(ndev, "invalid tx used %d\n", used);
++		used = vr->used->ring + (last % vr->num);
++		if (used->id >= vr->num || used->len != 1) {
++			netdev_err(ndev, "invalid tx used->id %d ->len %d\n",
++				   used->id, used->len);
+ 			break;
+ 		}
+ 
+-		desc = &vr->desc[used];
++		desc = &vr->desc[used->id];
+ 
+ 		data = ivshm_net_desc_data(in, &in->tx, desc, &len);
+ 		if (!data) {
+@@ -384,7 +385,7 @@ static void ivshm_net_tx_clean(struct net_device *ndev)
+ 		else
+ 			desc->next = fhead;
+ 
+-		fhead = used;
++		fhead = used->id;
+ 		last++;
+ 		num++;
+ 	}
+@@ -434,6 +435,7 @@ static void ivshm_net_rx_finish(struct ivshm_net *in, struct vring_desc *desc)
+ 
+ 	used = rx->last_used_idx++ & (vr->num - 1);
+ 	vr->used->ring[used].id = desc_id;
++	vr->used->ring[used].len = 1;
+ 
+ 	virt_store_release(&vr->used->idx, rx->last_used_idx);
+ }
+-- 
+2.34.1
+

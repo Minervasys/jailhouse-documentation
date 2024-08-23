@@ -1,0 +1,59 @@
+From 1b5e1604baae42adbf1b49b9d4cde973b2fa50a0 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Wed, 21 Dec 2016 08:20:18 +0100
+Subject: [PATCH 22/43] ivshmem-net: Improve identification of resources
+
+Pass a device name consisting of driver name and PCI ID to request_irq
+and alloc_ordered_workqueue. This helps correlating resources with
+devices in case there are multiple of them.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ drivers/net/ivshmem-net.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/ivshmem-net.c b/drivers/net/ivshmem-net.c
+index 6b8dd677f..593a84e12 100644
+--- a/drivers/net/ivshmem-net.c
++++ b/drivers/net/ivshmem-net.c
+@@ -763,6 +763,7 @@ static int ivshm_net_probe(struct pci_dev *pdev,
+ 	resource_size_t shmaddr;
+ 	resource_size_t shmlen;
+ 	int interrupt;
++	char *device_name;
+ 	void *shm;
+ 	u32 ivpos;
+ 	int err;
+@@ -815,7 +816,10 @@ static int ivshm_net_probe(struct pci_dev *pdev,
+ 		return -EINVAL;
+ 	}
+ 
+-	dev_info(&pdev->dev, "shared memory size %pa\n", &shmlen);
++	device_name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "%s[%s]", DRV_NAME,
++				     dev_name(&pdev->dev));
++	if (!device_name)
++		return -ENOMEM;
+ 
+ 	ndev = alloc_etherdev(sizeof(*in));
+ 	if (!ndev)
+@@ -838,7 +842,7 @@ static int ivshm_net_probe(struct pci_dev *pdev,
+ 	if (err)
+ 		goto err_free;
+ 
+-	in->state_wq = alloc_ordered_workqueue(DRV_NAME, 0);
++	in->state_wq = alloc_ordered_workqueue(device_name, 0);
+ 	if (!in->state_wq)
+ 		goto err_free;
+ 
+@@ -867,7 +871,7 @@ static int ivshm_net_probe(struct pci_dev *pdev,
+ 		in->using_msix = false;
+ 	}
+ 
+-	err = request_irq(interrupt, ivshm_net_int, 0, DRV_NAME, ndev);
++	err = request_irq(interrupt, ivshm_net_int, 0, device_name, ndev);
+ 	if (err)
+ 		goto err_int;
+ 
+-- 
+2.34.1
+

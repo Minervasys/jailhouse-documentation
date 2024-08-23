@@ -1,0 +1,31 @@
+From 6842035bd87aef65c581b5fd5a3bc1c439c39ab2 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Sun, 4 Mar 2018 13:16:04 +0100
+Subject: [PATCH 33/43] ivshmem-net: Fix bogus transition to RESET state
+
+If we are in READY but the remote is still in INIT, we so far fell back
+to RESET which caused the setup to get stuck. Fix this by only
+transitioning from READY/RUN to RESET in ivshm_net_state_change if the
+remote is in RESET as well.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ drivers/net/ivshmem-net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ivshmem-net.c b/drivers/net/ivshmem-net.c
+index 009f1cad4..b6e6bd0c1 100644
+--- a/drivers/net/ivshmem-net.c
++++ b/drivers/net/ivshmem-net.c
+@@ -599,7 +599,7 @@ static void ivshm_net_state_change(struct work_struct *work)
+ 		if (rstate >= IVSHM_NET_STATE_READY) {
+ 			netif_carrier_on(ndev);
+ 			ivshm_net_run(ndev);
+-		} else {
++		} else if (rstate == IVSHM_NET_STATE_RESET) {
+ 			netif_carrier_off(ndev);
+ 			ivshm_net_do_stop(ndev);
+ 		}
+-- 
+2.34.1
+

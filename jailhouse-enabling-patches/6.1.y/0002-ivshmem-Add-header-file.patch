@@ -1,7 +1,7 @@
-From 1e5037f5f45127024ad23aa06c8a81d9bbd105ff Mon Sep 17 00:00:00 2001
+From a4a3c36004deaf15e8373650258f8ddc1893ef59 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Tue, 1 Oct 2019 12:33:25 +0200
-Subject: [PATCH 5/6] ivshmem: Add header file
+Subject: [PATCH 02/43] ivshmem: Add header file
 
 Common defines and structures for the ivshmem device.
 
@@ -13,7 +13,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 
 diff --git a/include/linux/ivshmem.h b/include/linux/ivshmem.h
 new file mode 100644
-index 000000000000..bad8547f071b
+index 000000000..bad8547f0
 --- /dev/null
 +++ b/include/linux/ivshmem.h
 @@ -0,0 +1,30 @@
@@ -48,5 +48,5 @@ index 000000000000..bad8547f071b
 +
 +#endif /* _LINUX_IVSHMEM_H */
 -- 
-2.45.2
+2.34.1
 

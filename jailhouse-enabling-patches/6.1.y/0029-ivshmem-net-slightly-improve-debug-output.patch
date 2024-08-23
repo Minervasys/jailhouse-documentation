@@ -1,0 +1,29 @@
+From bb020576c5f83d57967a06f63d692d4360fb6bc7 Mon Sep 17 00:00:00 2001
+From: Henning Schild <henning.schild@siemens.com>
+Date: Mon, 18 Sep 2017 18:02:10 +0200
+Subject: [PATCH 29/43] ivshmem-net: slightly improve debug output
+
+There where two lines with the same error message, change one of them.
+
+Signed-off-by: Henning Schild <henning.schild@siemens.com>
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ drivers/net/ivshmem-net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ivshmem-net.c b/drivers/net/ivshmem-net.c
+index a033b8fc4..a44803b2e 100644
+--- a/drivers/net/ivshmem-net.c
++++ b/drivers/net/ivshmem-net.c
+@@ -370,7 +370,7 @@ static void ivshm_net_tx_clean(struct net_device *ndev)
+ 
+ 		data = ivshm_net_desc_data(in, &in->tx, desc, &len);
+ 		if (!data) {
+-			netdev_err(ndev, "bad tx descriptor\n");
++			netdev_err(ndev, "bad tx descriptor, data == NULL\n");
+ 			break;
+ 		}
+ 
+-- 
+2.34.1
+

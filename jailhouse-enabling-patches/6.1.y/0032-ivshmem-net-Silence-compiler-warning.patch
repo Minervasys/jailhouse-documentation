@@ -1,0 +1,28 @@
+From ac27c0b1bd3c8fb773487c4cc038160d45fcf6dd Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Tue, 3 Oct 2017 12:24:59 +0200
+Subject: [PATCH 32/43] ivshmem-net: Silence compiler warning
+
+At least Linaro's gcc 6.3 does not see the initialization and usage
+dependency of fhead and num. Let's silence this false positive.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ drivers/net/ivshmem-net.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/net/ivshmem-net.c b/drivers/net/ivshmem-net.c
+index 04a6bd62a..009f1cad4 100644
+--- a/drivers/net/ivshmem-net.c
++++ b/drivers/net/ivshmem-net.c
+@@ -357,6 +357,7 @@ static void ivshm_net_tx_clean(struct net_device *ndev)
+ 	last = tx->last_used_idx;
+ 
+ 	fdesc = NULL;
++	fhead = 0;
+ 	num = 0;
+ 
+ 	while (last != used_idx) {
+-- 
+2.34.1
+

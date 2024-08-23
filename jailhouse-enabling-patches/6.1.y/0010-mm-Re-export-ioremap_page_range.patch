@@ -1,7 +1,7 @@
-From f3ab4d71c0ba20b8932a84e457a4f0e293aa809e Mon Sep 17 00:00:00 2001
+From d6f03e671d696bab40e88492b88c8f4c32349dd6 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Tue, 7 Feb 2017 17:52:00 +0100
-Subject: [PATCH 1/6] mm: Re-export ioremap_page_range
+Subject: [PATCH 10/43] mm: Re-export ioremap_page_range
 
 We need this in Jailhouse to map at specific virtual addresses, at
 least for the moment.
@@ -12,7 +12,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index 67a10a04df04..19cacf4318f6 100644
+index c5e30b528..74983394a 100644
 --- a/mm/vmalloc.c
 +++ b/mm/vmalloc.c
 @@ -325,6 +325,7 @@ int ioremap_page_range(unsigned long addr, unsigned long end,
@@ -24,5 +24,5 @@ index 67a10a04df04..19cacf4318f6 100644
  static void vunmap_pte_range(pmd_t *pmd, unsigned long addr, unsigned long end,
  			     pgtbl_mod_mask *mask)
 -- 
-2.45.2
+2.34.1
 

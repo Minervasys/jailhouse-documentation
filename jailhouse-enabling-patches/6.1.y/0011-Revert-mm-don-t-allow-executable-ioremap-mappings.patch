@@ -1,7 +1,7 @@
-From 6da19862085fae9492e47d2d5f37f0a57c5726b2 Mon Sep 17 00:00:00 2001
+From bd39f351c672ffd3194cbcdc10dba7d70f7978dd Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sat, 2 Oct 2021 11:24:16 +0200
-Subject: [PATCH 2/6] Revert "mm: don't allow executable ioremap mappings"
+Subject: [PATCH 11/43] Revert "mm: don't allow executable ioremap mappings"
 
 This reverts commit 8491502f787c4a902bd4f223b578ef47d3490264.
 
@@ -13,7 +13,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index 19cacf4318f6..14d8c8033e06 100644
+index 74983394a..4f9d1ad1d 100644
 --- a/mm/vmalloc.c
 +++ b/mm/vmalloc.c
 @@ -317,7 +317,7 @@ int ioremap_page_range(unsigned long addr, unsigned long end,
@@ -26,5 +26,5 @@ index 19cacf4318f6..14d8c8033e06 100644
  	flush_cache_vmap(addr, end);
  	if (!err)
 -- 
-2.45.2
+2.34.1
 

@@ -1,0 +1,43 @@
+From 9b743c1d1560e6d6fb176d6007ef0aa33874d40a Mon Sep 17 00:00:00 2001
+From: Henning Schild <henning.schild@siemens.com>
+Date: Mon, 18 Sep 2017 18:02:11 +0200
+Subject: [PATCH 30/43] ivshmem-net: set and check descriptor flags
+
+We do not support the use of any flags. Make sure the remote does not
+confuse us using flags.
+
+Signed-off-by: Henning Schild <henning.schild@siemens.com>
+[Jan: Remove wrong removal of next field initialization]
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ drivers/net/ivshmem-net.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/net/ivshmem-net.c b/drivers/net/ivshmem-net.c
+index a44803b2e..c12532570 100644
+--- a/drivers/net/ivshmem-net.c
++++ b/drivers/net/ivshmem-net.c
+@@ -124,8 +124,12 @@ static void *ivshm_net_desc_data(struct ivshm_net *in,
+ {
+ 	u64 offs = READ_ONCE(desc->addr);
+ 	u32 dlen = READ_ONCE(desc->len);
++	u16 flags = READ_ONCE(desc->flags);
+ 	void *data;
+ 
++	if (flags)
++		return NULL;
++
+ 	if (offs >= in->shmlen)
+ 		return NULL;
+ 
+@@ -318,6 +322,7 @@ static int ivshm_net_tx_frame(struct net_device *ndev, struct sk_buff *skb)
+ 
+ 	desc->addr = buf - in->shm;
+ 	desc->len = skb->len;
++	desc->flags = 0;
+ 
+ 	avail = tx->last_avail_idx++ & (vr->num - 1);
+ 	vr->avail->ring[avail] = desc_idx;
+-- 
+2.34.1
+

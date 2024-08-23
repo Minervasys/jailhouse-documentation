@@ -1,0 +1,42 @@
+From dd2582d8e66c0308122eb6602a4eb4efcd727090 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Sat, 7 Jan 2023 18:31:36 +0100
+Subject: [PATCH 43/43] ivshmem-net: Ensure that napi_schedule is always called
+ with bh disabled
+
+ivshm_net_run is executed in task context, thus also with bottom-halves
+enabled. Calling napi_schedule in that state can cause problems under
+NOHZ, see also
+
+https://patches.linaro.org/project/linux-usb/patch/877dk162mo.ffs@nanos.tec.linutronix.de/
+
+Therefore, disable bh around this call. Other invocations of
+napi_schedule are not affected:
+
+ivshm_net_poll - poll routine, always called with bh disabled
+ivshm_net_int_tx_rx - interrupt handler, bh implicitly off
+ivshm_net_poll_controller - always called with IRQs off, thus also bh
+
+Reported-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ drivers/net/ivshmem-net.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/net/ivshmem-net.c b/drivers/net/ivshmem-net.c
+index 9406b4dcc..a80eea5ae 100644
+--- a/drivers/net/ivshmem-net.c
++++ b/drivers/net/ivshmem-net.c
+@@ -558,7 +558,9 @@ static void ivshm_net_run(struct net_device *ndev)
+ 
+ 	netif_start_queue(ndev);
+ 	napi_enable(&in->napi);
++	local_bh_disable();
+ 	napi_schedule(&in->napi);
++	local_bh_enable();
+ 	ivshm_net_set_state(in, IVSHM_NET_STATE_RUN);
+ }
+ 
+-- 
+2.34.1
+

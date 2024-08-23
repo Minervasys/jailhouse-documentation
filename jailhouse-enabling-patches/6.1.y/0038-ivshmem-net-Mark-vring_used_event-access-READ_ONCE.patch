@@ -1,0 +1,28 @@
+From 7a2e7616c06a8e1fc739f4abe05f9b939d5e7ae1 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Mon, 9 Mar 2020 09:26:09 +0100
+Subject: [PATCH 38/43] ivshmem-net: Mark vring_used_event access READ_ONCE
+
+Analogously to vring_avail_event in ivshm_net_notify_tx.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ drivers/net/ivshmem-net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ivshmem-net.c b/drivers/net/ivshmem-net.c
+index 38d68a934..4f2cd6158 100644
+--- a/drivers/net/ivshmem-net.c
++++ b/drivers/net/ivshmem-net.c
+@@ -236,7 +236,7 @@ static void ivshm_net_notify_rx(struct ivshm_net *in, unsigned int num)
+ 
+ 	virt_mb();
+ 
+-	evt = vring_used_event(&in->rx.vr);
++	evt = READ_ONCE(vring_used_event(&in->rx.vr));
+ 	old = in->rx.last_used_idx - num;
+ 	new = in->rx.last_used_idx;
+ 
+-- 
+2.34.1
+
