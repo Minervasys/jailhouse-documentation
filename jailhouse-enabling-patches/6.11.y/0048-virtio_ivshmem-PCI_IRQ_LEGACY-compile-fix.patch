@@ -1,0 +1,26 @@
+From ddb8eacd9b68ba8cf16f7990aa1d0e44f9eebc2e Mon Sep 17 00:00:00 2001
+From: Alex Zuepke <alex.zuepke@minervasys.tech>
+Date: Fri, 23 Aug 2024 20:41:46 +0200
+Subject: [PATCH 48/48] virtio_ivshmem: PCI_IRQ_LEGACY compile fix
+
+Signed-off-by: Alex Zuepke <alex.zuepke@minervasys.tech>
+---
+ drivers/virtio/virtio_ivshmem.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/virtio/virtio_ivshmem.c b/drivers/virtio/virtio_ivshmem.c
+index 7132cf0e2..1fa08906f 100644
+--- a/drivers/virtio/virtio_ivshmem.c
++++ b/drivers/virtio/virtio_ivshmem.c
+@@ -533,7 +533,7 @@ static int vi_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 					desired_vectors, PCI_IRQ_MSIX);
+ 	if (vectors != desired_vectors) {
+ 		vectors = pci_alloc_irq_vectors(vi_dev->pci_dev, 1, 2,
+-						PCI_IRQ_LEGACY | PCI_IRQ_MSIX);
++						PCI_IRQ_INTX | PCI_IRQ_MSIX);
+ 		if (vectors < 0)
+ 			return vectors;
+ 	}
+-- 
+2.34.1
+

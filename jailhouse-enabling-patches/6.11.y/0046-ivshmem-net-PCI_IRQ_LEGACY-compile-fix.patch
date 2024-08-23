@@ -1,0 +1,26 @@
+From de9a1cc18feb0df1a8a0e2ea9be1fef188dfb2f2 Mon Sep 17 00:00:00 2001
+From: Alex Zuepke <alex.zuepke@minervasys.tech>
+Date: Fri, 23 Aug 2024 20:41:22 +0200
+Subject: [PATCH 46/48] ivshmem-net: PCI_IRQ_LEGACY compile fix
+
+Signed-off-by: Alex Zuepke <alex.zuepke@minervasys.tech>
+---
+ drivers/net/ivshmem-net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ivshmem-net.c b/drivers/net/ivshmem-net.c
+index a80eea5ae..d0293272f 100644
+--- a/drivers/net/ivshmem-net.c
++++ b/drivers/net/ivshmem-net.c
+@@ -994,7 +994,7 @@ static int ivshm_net_probe(struct pci_dev *pdev,
+ 	if (ret)
+ 		goto err_wq;
+ 
+-	ret = pci_alloc_irq_vectors(pdev, 1, 2, PCI_IRQ_LEGACY | PCI_IRQ_MSIX);
++	ret = pci_alloc_irq_vectors(pdev, 1, 2, PCI_IRQ_INTX | PCI_IRQ_MSIX);
+ 	if (ret < 0)
+ 		goto err_alloc_irq;
+ 
+-- 
+2.34.1
+

@@ -1,0 +1,26 @@
+From 78279a116efdaad07374ec56f472622a57b7aab9 Mon Sep 17 00:00:00 2001
+From: Alex Zuepke <alex.zuepke@minervasys.tech>
+Date: Fri, 23 Aug 2024 18:41:13 +0200
+Subject: [PATCH 02/48] uio: Enable read-only mappings (compile fix)
+
+Signed-off-by: Alex Zuepke <alex.zuepke@minervasys.tech>
+---
+ drivers/uio/uio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/uio/uio.c b/drivers/uio/uio.c
+index 59fcd08f1..6817e8ab5 100644
+--- a/drivers/uio/uio.c
++++ b/drivers/uio/uio.c
+@@ -856,7 +856,7 @@ static int uio_mmap(struct file *filep, struct vm_area_struct *vma)
+ 			goto out;
+ 		}
+ 
+-		vma->vm_flags &= ~VM_MAYWRITE;
++		vm_flags_clear(vma, VM_MAYWRITE);
+ 	}
+ 
+ 	if (idev->info->mmap) {
+-- 
+2.34.1
+

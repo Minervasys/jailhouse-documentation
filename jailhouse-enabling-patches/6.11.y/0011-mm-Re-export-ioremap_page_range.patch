@@ -1,0 +1,28 @@
+From adba928ce93a4ec17e960183de28b5ebf2635490 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Tue, 7 Feb 2017 17:52:00 +0100
+Subject: [PATCH 11/48] mm: Re-export ioremap_page_range
+
+We need this in Jailhouse to map at specific virtual addresses, at
+least for the moment.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ mm/vmalloc.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index af2de3654..0e40c18dd 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -345,6 +345,7 @@ int ioremap_page_range(unsigned long addr, unsigned long end,
+ 	}
+ 	return vmap_page_range(addr, end, phys_addr, prot);
+ }
++EXPORT_SYMBOL_GPL(ioremap_page_range);
+ 
+ static void vunmap_pte_range(pmd_t *pmd, unsigned long addr, unsigned long end,
+ 			     pgtbl_mod_mask *mask)
+-- 
+2.34.1
+
