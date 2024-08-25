@@ -1,0 +1,35 @@
+From a520e008eeb9c1a85047e6c8c48263c7e8dbbade Mon Sep 17 00:00:00 2001
+From: Alex Zuepke <alex.zuepke@minervasys.tech>
+Date: Sun, 25 Aug 2024 16:14:40 +0200
+Subject: [PATCH 2/4] Jailhouse: reserved memory region on Firefly ITX-3588J
+
+Signed-off-by: Alex Zuepke <alex.zuepke@minervasys.tech>
+---
+ .../boot/dts/rockchip/rk3588-firefly-itx-3588j.dts    | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/rockchip/rk3588-firefly-itx-3588j.dts b/arch/arm64/boot/dts/rockchip/rk3588-firefly-itx-3588j.dts
+index 8013ecc49..2470883ad 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3588-firefly-itx-3588j.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3588-firefly-itx-3588j.dts
+@@ -93,6 +93,17 @@ vcc_1v1_nldo_s3: vcc-1v1-nldo-s3 {
+ 		regulator-max-microvolt = <1100000>;
+ 		vin-supply = <&vcc5v0_sys>;
+ 	};
++
++	reserved-memory {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++
++		jailhouse@a800000  {
++			no-map;
++			reg = <0x0 0x0a800000 0x0 0x05800000>;
++		};
++	};
+ };
+ 
+ &combphy0_ps {
+-- 
+2.34.1
+
